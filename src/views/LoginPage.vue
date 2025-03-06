@@ -100,7 +100,6 @@ watch(isRegister,()=>{
         <el-form-item prop="role">
           <el-radio-group v-model="formModel.role">
             <el-radio value="student" label="student">学生端</el-radio>
-            <el-radio value="teacher" label="teacher">教师端</el-radio>
             <el-radio value="admin" label="admin">管理员端</el-radio>
           </el-radio-group>
         </el-form-item>

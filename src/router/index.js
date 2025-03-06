@@ -33,7 +33,7 @@ const router = createRouter({
         },
         {
           path: '/system/student',
-          component: () => import('@/views/manage/system/index.vue')
+          component: () => import('@/views/manage/system/StudentManage.vue')
         },
         {
           path: '/system/role',

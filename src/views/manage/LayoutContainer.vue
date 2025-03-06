@@ -58,12 +58,6 @@ const item = {
             <el-icon>
               <Management />
             </el-icon>
-            <span>教师管理</span>
-          </el-menu-item>
-          <el-menu-item index="/system/student">
-            <el-icon>
-              <Management />
-            </el-icon>
             <span>学生管理</span>
           </el-menu-item>
           <el-menu-item index="/system/role">

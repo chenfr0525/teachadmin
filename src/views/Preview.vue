@@ -15,7 +15,7 @@ const handleLogin=()=>{
         <el-header>
           <el-space>
             <div class="log">
-              <img src="" alt="">
+              <img src="../assets//智教链logo.png" alt="">
               <h1>智教链</h1>
             </div>
             <div class="nav">
@@ -38,9 +38,8 @@ const handleLogin=()=>{
             <div class="content">
               <h1 style="color: #4c7273;">智教链</h1>
               <p>智教链是一个基于区块链技术的教育平台，致力于打造一个公平、公正、透明的教育生态。</p>
-              <el-space>
+              <el-space :size="40">
                 <el-button @click="handleLogin">学生</el-button>
-                <el-button @click="handleLogin">教师</el-button>
                 <el-button @click="handleLogin">管理员</el-button>
               </el-space>
             </div>
@@ -55,39 +54,17 @@ const handleLogin=()=>{
                     <img src="../assets/1.jpg" alt="">
                     <h1>个性化多轮回答</h1>
                   </template>
-                  <div>
-                    Consistent with real life: in line with the process and logic of real
-                    life, and comply with languages and habits that the users are used to;
-                  </div>
+                  <div class="colContent">知识集成</div>
+                  <div class="colContent">智能回答</div>
+                  <div class="colContent">个性化学习</div>
                 </el-collapse-item>
                 <el-collapse-item name="2">
                   <template #title>
                     <img src="../assets/1.jpg" alt="">
-                    <h1>知识集成</h1>
+                    <h1>智能编程教学</h1>
                   </template>
-                  <div>
-                    Operation feedback: enable the users to clearly perceive their
-                    operations by style updates and interactive effects;
-                  </div>
-                </el-collapse-item>
-                <el-collapse-item name="3">
-                  <template #title>
-                    <img src="../assets/1.jpg" alt="">
-                    <h1>智能回答</h1>
-                  </template>
-                  <div>
-                    Simplify the process: keep operating process simple and intuitive;
-                  </div>
-                </el-collapse-item>
-                <el-collapse-item name="4">
-                  <template #title>
-                    <img src="../assets/1.jpg" alt="">
-                    <h1>个性化学习</h1>
-                  </template>
-                  <div>
-                    Decision making: giving advices about operations is acceptable, but do
-                    not make decisions for the users;
-                  </div>
+                  <div class="colContent">代码辅导</div>
+                  <div class="colContent">代码学习库</div>
                 </el-collapse-item>
               </el-collapse>
             </div>
@@ -125,7 +102,7 @@ const handleLogin=()=>{
 }
 
 .el-header {
-  height: 65px;
+  height: 80px;
   width: 100%;
   background-color: #5e8d83;
   color: #fff;
@@ -145,8 +122,9 @@ const handleLogin=()=>{
 }
 
 .el-header .log img {
-  width: 40px;
-  height: 40px;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
 }
 
 .el-header .log h1 {
@@ -180,12 +158,16 @@ const handleLogin=()=>{
 }
 
 .el-main .content {
-  width: 100%;
   height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.el-main .content p {
+  margin: 30px 0;
 }
 
 .el-main .content .el-button {
@@ -222,6 +204,14 @@ const handleLogin=()=>{
 .el-main .demo-collapse .el-collapse-item img {
   width: 45px;
   height: 45px;
+}
+
+.el-main .demo-collapse .el-collapse-item .colContent {
+  padding:0 20px ;
+  line-height: 50px;
+  font-size: 17px;
+  height: 50px;
+  border-top: 1px solid #198754;
 }
 
 
