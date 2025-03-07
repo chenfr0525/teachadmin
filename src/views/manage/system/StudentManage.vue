@@ -1,223 +1,7 @@
-<!-- 用户管理 -->
-<template>
-  <div class="app-container">
-    <el-row :gutter="20">
-      <!-- 用户列表 -->
-      <el-col :lg="20" :xs="24">
-        <div class="search-bar">
-          <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-            <el-form-item label="关键字" prop="keywords">
-              <el-input
-                v-model="queryParams.keywords"
-                placeholder="用户名/昵称/手机号"
-                clearable
-                style="width: 200px"
-                @keyup.enter="handleQuery"
-              />
-            </el-form-item>
-
-            <el-form-item label="状态" prop="status">
-              <el-select
-                v-model="queryParams.status"
-                placeholder="全部"
-                clearable
-                class="!w-[100px]"
-              >
-                <el-option label="正常" :value="1" />
-                <el-option label="禁用" :value="0" />
-              </el-select>
-            </el-form-item>
-
-            <el-form-item label="创建时间">
-              <el-date-picker
-                v-model="queryParams.createTime"
-                :editable="false"
-                class="!w-[240px]"
-                type="daterange"
-                range-separator="~"
-                start-placeholder="开始时间"
-                end-placeholder="截止时间"
-                value-format="YYYY-MM-DD"
-              />
-            </el-form-item>
-
-            <el-form-item>
-              <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
-              <el-button icon="refresh" @click="handleResetQuery">重置</el-button>
-            </el-form-item>
-          </el-form>
-        </div>
-
-        <el-card shadow="never">
-          <div class="flex-x-between mb-10px">
-            <div>
-              <el-button
-                v-hasPerm="['sys:user:add']"
-                type="success"
-                icon="plus"
-                @click="handleOpenDialog()"
-              >
-                新增
-              </el-button>
-              <el-button
-                v-hasPerm="'sys:user:delete'"
-                type="danger"
-                icon="delete"
-                :disabled="selectIds.length === 0"
-                @click="handleDelete()"
-              >
-                删除
-              </el-button>
-            </div>
-          </div>
-
-          <el-table v-loading="loading" :data="pageData" @selection-change="handleSelectionChange">
-            <el-table-column type="selection" width="50" align="center" />
-            <el-table-column label="用户名" prop="username" />
-            <el-table-column label="昵称" width="150" align="center" prop="nickname" />
-            <el-table-column label="性别" width="100" align="center">
-              <template #default="scope">
-                <!-- 性别字典翻译 -->
-                <DictLabel v-model="scope.row.gender" code="gender" />
-              </template>
-            </el-table-column>
-            <el-table-column label="部门" width="120" align="center" prop="deptName" />
-            <el-table-column label="手机号码" align="center" prop="mobile" width="120" />
-            <el-table-column label="邮箱" align="center" prop="email" width="160" />
-            <el-table-column label="状态" align="center" prop="status" width="80">
-              <template #default="scope">
-                <el-tag :type="scope.row.status == 1 ? 'success' : 'info'">
-                  {{ scope.row.status == 1 ? "正常" : "禁用" }}
-                </el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column label="创建时间" align="center" prop="createTime" width="150" />
-            <el-table-column label="操作" fixed="right" width="220">
-              <template #default="scope">
-                <el-button
-                  v-hasPerm="'sys:user:password:reset'"
-                  type="primary"
-                  icon="RefreshLeft"
-                  size="small"
-                  link
-                  @click="hancleResetPassword(scope.row)"
-                >
-                  重置密码
-                </el-button>
-                <el-button
-                  v-hasPerm="'sys:user:edit'"
-                  type="primary"
-                  icon="edit"
-                  link
-                  size="small"
-                  @click="handleOpenDialog(scope.row.id)"
-                >
-                  编辑
-                </el-button>
-                <el-button
-                  v-hasPerm="'sys:user:delete'"
-                  type="danger"
-                  icon="delete"
-                  link
-                  size="small"
-                  @click="handleDelete(scope.row.id)"
-                >
-                  删除
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-
-          <pagination
-            v-if="total > 0"
-            v-model:total="total"
-            v-model:page="queryParams.pageNum"
-            v-model:limit="queryParams.pageSize"
-            @pagination="handleQuery"
-          />
-        </el-card>
-      </el-col>
-    </el-row>
-
-    <!-- 用户表单 -->
-    <el-drawer
-      v-model="dialog.visible"
-      :title="dialog.title"
-      append-to-body
-      @close="handleCloseDialog"
-    >
-      <el-form ref="userFormRef" :model="formData" :rules="rules" label-width="80px">
-        <el-form-item label="用户名" prop="username">
-          <el-input
-            v-model="formData.username"
-            :readonly="!!formData.id"
-            placeholder="请输入用户名"
-          />
-        </el-form-item>
-
-        <el-form-item label="用户昵称" prop="nickname">
-          <el-input v-model="formData.nickname" placeholder="请输入用户昵称" />
-        </el-form-item>
-
-        <el-form-item label="所属部门" prop="deptId">
-          <el-tree-select
-            v-model="formData.deptId"
-            placeholder="请选择所属部门"
-            :data="deptOptions"
-            filterable
-            check-strictly
-            :render-after-expand="false"
-          />
-        </el-form-item>
-
-        <el-form-item label="性别" prop="gender">
-          <Dict v-model="formData.gender" code="gender" />
-        </el-form-item>
-
-        <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="formData.roleIds" multiple placeholder="请选择">
-            <el-option
-              v-for="item in roleOptions"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="手机号码" prop="mobile">
-          <el-input v-model="formData.mobile" placeholder="请输入手机号码" maxlength="11" />
-        </el-form-item>
-
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="formData.email" placeholder="请输入邮箱" maxlength="50" />
-        </el-form-item>
-
-        <el-form-item label="状态" prop="status">
-          <el-switch
-            v-model="formData.status"
-            inline-prompt
-            active-text="正常"
-            inactive-text="禁用"
-            :active-value="1"
-            :inactive-value="0"
-          />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-drawer>
-  </div>
-</template>
-
 <script setup>
-import {ref,onMounted} from 'vue'
+import { ref, onMounted } from 'vue'
 // import UserAPI, { UserForm, UserPageQuery, UserPageVO } from "@/api/system/user";
+import { Refresh, Plus, Delete, RefreshLeft, Search, Edit } from '@element-plus/icons-vue'
 
 // import DeptAPI from "@/api/system/dept";
 // import RoleAPI from "@/api/system/role";
@@ -228,10 +12,10 @@ const userFormRef = ref();
 const queryParams = ref({
   pageNum: 1,
   pageSize: 10,
-  deptId:'',
+  deptId: '',
   createTime: "",
-  keywords:'',
-  status:''
+  keywords: '',
+  status: ''
 });
 
 const pageData = ref();
@@ -247,14 +31,14 @@ const dialog = ref({
 //reactive
 const formData = ref({
   status: 1,
-  username:'',
-  id:'',
-  nickname:'',
-  deptId:'',
-  gender:'',
-  roleIds:'',
-  mobile:'',
-  email:''
+  username: '',
+  id: '',
+  nickname: '',
+  deptId: '',
+  gender: '',
+  roleIds: '',
+  mobile: '',
+  email: ''
 });
 
 //reactive
@@ -369,7 +153,7 @@ function handleCloseDialog() {
 }
 
 // 提交用户表单（防抖）
-const handleSubmit=()=>{}//报错先定义一下
+const handleSubmit = () => { }//报错先定义一下
 // const handleSubmit = useDebounceFn(() => {
 //   userFormRef.value.validate((valid: boolean) => {
 //     if (valid) {
@@ -401,7 +185,7 @@ const handleSubmit=()=>{}//报错先定义一下
  *
  * @param id  用户ID
  */
-const handleDelete=(id)=> {
+const handleDelete = (id) => {
   const userIds = [id || selectIds.value].join(",");
   if (!userIds) {
     ElMessage.warning("请勾选删除项");
@@ -429,7 +213,7 @@ const handleDelete=(id)=> {
 }
 
 // 打开导入弹窗
-const handleOpenImportDialog=()=> {
+const handleOpenImportDialog = () => {
   importDialogVisible.value = true;
 }
 
@@ -461,6 +245,146 @@ onMounted(() => {
 });
 </script>
 
-<style>
+<template>
+  <div class="app-container">
+    <el-card shadow="always">
+      <el-row :gutter="20">
+        <!-- 用户列表 -->
+        <el-col>
+          <div class="search-bar">
+            <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+              <el-form-item label="关键字" prop="keywords">
+                <el-input v-model="queryParams.keywords" placeholder="用户名/昵称/手机号" clearable style="width: 200px"
+                  @keyup.enter="handleQuery" />
+              </el-form-item>
 
-</style>
+              <el-form-item label="状态" prop="status">
+                <el-select v-model="queryParams.status" placeholder="全部" clearable class="!w-[100px]">
+                  <el-option label="正常" :value="1" />
+                  <el-option label="禁用" :value="0" />
+                </el-select>
+              </el-form-item>
+
+              <el-form-item label="创建时间">
+                <el-date-picker v-model="queryParams.createTime" :editable="false" class="!w-[240px]" type="daterange"
+                  range-separator="~" start-placeholder="开始时间" end-placeholder="截止时间" value-format="YYYY-MM-DD" />
+              </el-form-item>
+
+              <el-form-item>
+                <el-button type="primary" :icon="Search" @click="handleQuery">搜索</el-button>
+                <el-button :icon="Refresh" @click="handleResetQuery">重置</el-button>
+              </el-form-item>
+            </el-form>
+          </div>
+
+          <el-card shadow="never">
+            <div class="flex-x-between mb-10px">
+              <div>
+                <el-button v-hasPerm="['sys:user:add']" type="success" :icon="Plus" @click="handleOpenDialog()">
+                  新增
+                </el-button>
+                <el-button v-hasPerm="'sys:user:delete'" type="danger" :icon="Delete" :disabled="selectIds.length === 0"
+                  @click="handleDelete()">
+                  删除
+                </el-button>
+              </div>
+            </div>
+
+            <el-table v-loading="loading" :data="pageData" @selection-change="handleSelectionChange">
+              <el-table-column type="selection" width="50" align="center" />
+              <el-table-column label="用户名" prop="username" />
+              <el-table-column label="昵称" width="150" align="center" prop="nickname" />
+              <el-table-column label="性别" width="100" align="center">
+                <template #default="scope">
+                  <!-- 性别字典翻译 -->
+                  <DictLabel v-model="scope.row.gender" code="gender" />
+                </template>
+              </el-table-column>
+              <el-table-column label="部门" width="120" align="center" prop="deptName" />
+              <el-table-column label="手机号码" align="center" prop="mobile" width="120" />
+              <el-table-column label="邮箱" align="center" prop="email" width="160" />
+              <el-table-column label="状态" align="center" prop="status" width="80">
+                <template #default="scope">
+                  <el-tag :type="scope.row.status == 1 ? 'success' : 'info'">
+                    {{ scope.row.status == 1 ? "正常" : "禁用" }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="创建时间" align="center" prop="createTime" width="150" />
+              <el-table-column label="操作" fixed="right" width="220">
+                <template #default="scope">
+                  <el-button v-hasPerm="'sys:user:password:reset'" type="primary" :icon="RefreshLeft" size="small" link
+                    @click="hancleResetPassword(scope.row)">
+                    重置密码
+                  </el-button>
+                  <el-button v-hasPerm="'sys:user:edit'" type="primary" :icon="Edit" link size="small"
+                    @click="handleOpenDialog(scope.row.id)">
+                    编辑
+                  </el-button>
+                  <el-button v-hasPerm="'sys:user:delete'" type="danger" :icon="Delete" link size="small"
+                    @click="handleDelete(scope.row.id)">
+                    删除
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+
+            <pagination v-if="total > 0" v-model:total="total" v-model:page="queryParams.pageNum"
+              v-model:limit="queryParams.pageSize" @pagination="handleQuery" />
+          </el-card>
+        </el-col>
+      </el-row>
+    </el-card>
+    <!-- 用户表单 -->
+    <el-drawer v-model="dialog.visible" :title="dialog.title" append-to-body @close="handleCloseDialog">
+      <el-form ref="userFormRef" :model="formData" :rules="rules" label-width="80px">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="formData.username" :readonly="!!formData.id" placeholder="请输入用户名" />
+        </el-form-item>
+
+        <el-form-item label="用户昵称" prop="nickname">
+          <el-input v-model="formData.nickname" placeholder="请输入用户昵称" />
+        </el-form-item>
+
+        <el-form-item label="所属部门" prop="deptId">
+          <el-tree-select v-model="formData.deptId" placeholder="请选择所属部门" :data="deptOptions" filterable check-strictly
+            :render-after-expand="false" />
+        </el-form-item>
+
+        <el-form-item label="性别" prop="gender">
+          <Dict v-model="formData.gender" code="gender" />
+        </el-form-item>
+
+        <el-form-item label="角色" prop="roleIds">
+          <el-select v-model="formData.roleIds" multiple placeholder="请选择">
+            <el-option v-for="item in roleOptions" :key="item.value" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="手机号码" prop="mobile">
+          <el-input v-model="formData.mobile" placeholder="请输入手机号码" maxlength="11" />
+        </el-form-item>
+
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="formData.email" placeholder="请输入邮箱" maxlength="50" />
+        </el-form-item>
+
+        <el-form-item label="状态" prop="status">
+          <el-switch v-model="formData.status" inline-prompt active-text="正常" inactive-text="禁用" :active-value="1"
+            :inactive-value="0" />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleSubmit">确 定</el-button>
+          <el-button @click="handleCloseDialog">取 消</el-button>
+        </div>
+      </template>
+    </el-drawer>
+  </div>
+</template>
+
+
+
+<style></style>

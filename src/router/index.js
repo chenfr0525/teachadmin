@@ -12,18 +12,18 @@ const router = createRouter({
       component: () => import('@/views/Preview.vue')
     },
     {
-      path: '/',
-      component: () => import('@/views/usepage/LayoutContainer.vue'),
+      path: '/user',
+      component: () => import('@/views/studentpage/LayoutContainer.vue'),
       redirect:'/user/home',
       children:[
         {
           path:'/user/home',
-          component:()=>import('@/views/usepage/HomePage.vue')
+          component:()=>import('@/views/studentpage/HomePage.vue')
         }
       ]
     },
     {
-      path: '/admin',
+      path: '/',
       component: () => import('@/views/manage/LayoutContainer.vue'),
       redirect: '/admin/home',
       children: [
@@ -49,11 +49,11 @@ const router = createRouter({
         },
         {
           path: '/myinfo/profile',
-          component: () => import('@/views/manage/myinfo/UserProfile.vue')
+          component: () => import('@/views/manage/profile/MyInfo.vue')
         },
         {
-          path: '/myinfo/password',
-          component: () => import('@/views/manage/myinfo/UserPassword.vue')
+          path: '/myinfo/updateuser',
+          component: () => import('@/views/manage/profile/UpdateInfo.vue')
         }
       ]
     }

@@ -1,34 +1,12 @@
 <script setup>
 import { Management, CaretBottom, User,Crop,EditPen,SwitchButton,UserFilled } from '@element-plus/icons-vue'
-import { ElMessageBox } from 'element-plus'
-import { useRouter } from 'vue-router'
 import { ref } from 'vue'
-
-const router=useRouter()
 
 const item = {
   date: '2016-05-02',
   name: 'Tom',
   address: 'No. 189, Grove St, Los Angeles',
 }
-
-// 下拉菜单
-const handleCommand = async (key) =>{
-  if(key === 'logout'){
-    //退出操作
-    await ElMessageBox.confirm('你确认要退出吗？','温馨提示',{
-      type: 'warning',
-      confirmButtonText: '确认',
-      cancelButtonText: '取消'
-    })
-    // userStore.removeToken()
-    // userStore.setUser({})
-    // router.push('/login')
-  }else {
-    //跳转操作
-    router.push(`/myinfo/${key}`)
-  }
-} 
 
 </script>
 
@@ -57,7 +35,8 @@ const handleCommand = async (key) =>{
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item command="profile" :icon="User">基本资料</el-dropdown-item>
-              <el-dropdown-item command="updateuser" :icon="EditPen">修改信息</el-dropdown-item>
+              <el-dropdown-item command="avatar" :icon="Crop">更换头像</el-dropdown-item>
+              <el-dropdown-item command="password" :icon="EditPen">重置密码</el-dropdown-item>
               <el-dropdown-item command="logout" :icon="SwitchButton">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -114,17 +93,17 @@ const handleCommand = async (key) =>{
               </el-icon>
               <span>个人资料</span>
             </el-menu-item>
-            <el-menu-item index="/myinfo/updateuser">
+            <el-menu-item index="/myinfo/password">
               <el-icon>
                 <Crop />
               </el-icon>
-              <span>修改信息</span>
+              <span>修改密码</span>
             </el-menu-item>
           </el-sub-menu>
         </el-menu>
       </el-aside>
 
-      <el-main>
+      <el-main style="padding: 20px;">
         <el-scrollbar>
           <router-view></router-view>
         </el-scrollbar>
@@ -167,6 +146,6 @@ const handleCommand = async (key) =>{
 
 
 .layout-container-demo .el-main {
-  padding: 20px;
+  padding: 0;
 }
 </style>

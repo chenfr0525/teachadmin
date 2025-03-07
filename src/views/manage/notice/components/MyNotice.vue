@@ -1,3 +1,56 @@
+<script setup>
+import {ref,onMounted} from "vue";
+import { Search,Refresh,User,Timer } from '@element-plus/icons-vue'
+
+// import NoticeAPI, { NoticePageVO, NoticePageQuery, NoticeDetailVO } from "@/api/system/notice";
+
+const queryFormRef = ref();
+const pageData = ref([]);
+
+const loading = ref(false);
+const total = ref(0);
+
+const queryParams = ref<NoticePageQuery>({
+  pageNum: 1,
+  pageSize: 10,
+});
+
+const noticeDialogVisible = ref(false);
+const noticeDetail = ref(null);
+
+// 查询通知公告
+function handleQuery() {
+  // loading.value = true;
+  // NoticeAPI.getMyNoticePage(queryParams.value)
+  //   .then((data) => {
+  //     pageData.value = data.list;
+  //     total.value = data.total;
+  //   })
+  //   .finally(() => {
+  //     loading.value = false;
+  //   });
+}
+
+// 重置通知公告查询
+function handleResetQuery() {
+  // queryFormRef.value!.resetFields();
+  // queryParams.value.pageNum = 1;
+  // handleQuery();
+}
+
+// 阅读通知公告
+function handleReadNotice(id) {
+  NoticeAPI.getDetail(id).then((data) => {
+    noticeDialogVisible.value = true;
+    noticeDetail.value = data;
+  });
+}
+
+onMounted(() => {
+  handleQuery();
+});
+</script>
+
 <template>
   <div class="app-container">
     <div class="search-bar">
@@ -100,57 +153,6 @@
     </el-dialog>
   </div>
 </template>
-
-<script setup>
-import {ref,onMounted} from "vue";
-// import NoticeAPI, { NoticePageVO, NoticePageQuery, NoticeDetailVO } from "@/api/system/notice";
-
-const queryFormRef = ref();
-const pageData = ref([]);
-
-const loading = ref(false);
-const total = ref(0);
-
-const queryParams = ref<NoticePageQuery>({
-  pageNum: 1,
-  pageSize: 10,
-});
-
-const noticeDialogVisible = ref(false);
-const noticeDetail = ref(null);
-
-// 查询通知公告
-function handleQuery() {
-  // loading.value = true;
-  // NoticeAPI.getMyNoticePage(queryParams.value)
-  //   .then((data) => {
-  //     pageData.value = data.list;
-  //     total.value = data.total;
-  //   })
-  //   .finally(() => {
-  //     loading.value = false;
-  //   });
-}
-
-// 重置通知公告查询
-function handleResetQuery() {
-  // queryFormRef.value!.resetFields();
-  // queryParams.value.pageNum = 1;
-  // handleQuery();
-}
-
-// 阅读通知公告
-function handleReadNotice(id) {
-  NoticeAPI.getDetail(id).then((data) => {
-    noticeDialogVisible.value = true;
-    noticeDetail.value = data;
-  });
-}
-
-onMounted(() => {
-  handleQuery();
-});
-</script>
 
 <style lang="scss" scoped>
 :deep(.el-dialog__header) {

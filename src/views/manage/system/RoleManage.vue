@@ -1,211 +1,8 @@
-<template>
-  <div class="app-container">
-    <div class="search-bar">
-      <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-        <el-form-item prop="keywords" label="关键字">
-          <el-input
-            v-model="queryParams.keywords"
-            placeholder="角色名称"
-            clearable
-            @keyup.enter="handleQuery"
-          />
-        </el-form-item>
-
-        <el-form-item>
-          <el-button type="primary" icon="search" @click="handleQuery">搜索</el-button>
-          <el-button icon="refresh" @click="handleResetQuery">重置</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-
-    <el-card shadow="never">
-      <div class="mb-10px">
-        <el-button type="success" icon="plus" @click="handleOpenDialog()">新增</el-button>
-        <el-button type="danger" :disabled="ids.length === 0" icon="delete" @click="handleDelete()">
-          删除
-        </el-button>
-      </div>
-
-      <el-table
-        ref="dataTableRef"
-        v-loading="loading"
-        :data="roleList"
-        highlight-current-row
-        border
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column type="selection" width="55" align="center" />
-        <el-table-column label="角色名称" prop="name" min-width="100" />
-        <el-table-column label="角色编码" prop="code" width="150" />
-
-        <el-table-column label="状态" align="center" width="100">
-          <template #default="scope">
-            <el-tag v-if="scope.row.status === 1" type="success">正常</el-tag>
-            <el-tag v-else type="info">禁用</el-tag>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="排序" align="center" width="80" prop="sort" />
-
-        <el-table-column fixed="right" label="操作" width="220">
-          <template #default="scope">
-            <el-button
-              type="primary"
-              size="small"
-              link
-              icon="position"
-              @click="handleOpenAssignPermDialog(scope.row)"
-            >
-              分配权限
-            </el-button>
-            <el-button
-              type="primary"
-              size="small"
-              link
-              icon="edit"
-              @click="handleOpenDialog(scope.row.id)"
-            >
-              编辑
-            </el-button>
-            <el-button
-              type="danger"
-              size="small"
-              link
-              icon="delete"
-              @click="handleDelete(scope.row.id)"
-            >
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <pagination
-        v-if="total > 0"
-        v-model:total="total"
-        v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize"
-        @pagination="handleQuery"
-      />
-    </el-card>
-
-    <!-- 角色表单弹窗 -->
-    <el-dialog
-      v-model="dialog.visible"
-      :title="dialog.title"
-      width="500px"
-      @close="handleCloseDialog"
-    >
-      <el-form ref="roleFormRef" :model="formData" :rules="rules" label-width="100px">
-        <el-form-item label="角色名称" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入角色名称" />
-        </el-form-item>
-
-        <el-form-item label="角色编码" prop="code">
-          <el-input v-model="formData.code" placeholder="请输入角色编码" />
-        </el-form-item>
-
-        <el-form-item label="数据权限" prop="dataScope">
-          <el-select v-model="formData.dataScope">
-            <el-option :key="0" label="全部数据" :value="0" />
-            <el-option :key="1" label="部门及子部门数据" :value="1" />
-            <el-option :key="2" label="本部门数据" :value="2" />
-            <el-option :key="3" label="本人数据" :value="3" />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="状态" prop="status">
-          <el-radio-group v-model="formData.status">
-            <el-radio :value="1">正常</el-radio>
-            <el-radio :value="0">停用</el-radio>
-          </el-radio-group>
-        </el-form-item>
-
-        <el-form-item label="排序" prop="sort">
-          <el-input-number
-            v-model="formData.sort"
-            controls-position="right"
-            :min="0"
-            style="width: 100px"
-          />
-        </el-form-item>
-      </el-form>
-
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleSubmit">确 定</el-button>
-          <el-button @click="handleCloseDialog">取 消</el-button>
-        </div>
-      </template>
-    </el-dialog>
-
-    <!-- 分配权限弹窗 -->
-    <el-drawer
-      v-model="assignPermDialogVisible"
-      :title="'【' + checkedRole.name + '】权限分配'"
-      size="500"
-    >
-      <div class="flex-x-between">
-        <el-input v-model="permKeywords" clearable class="w-[150px]" placeholder="菜单权限名称">
-          <template #prefix>
-            <Search />
-          </template>
-        </el-input>
-
-        <div class="flex-center ml-5">
-          <el-button type="primary" size="small" plain @click="togglePermTree">
-            <template #icon>
-              <Switch />
-            </template>
-            {{ isExpanded ? "收缩" : "展开" }}
-          </el-button>
-          <el-checkbox
-            v-model="parentChildLinked"
-            class="ml-5"
-            @change="handleparentChildLinkedChange"
-          >
-            父子联动
-          </el-checkbox>
-
-          <el-tooltip placement="bottom">
-            <template #content>
-              如果只需勾选菜单权限，不需要勾选子菜单或者按钮权限，请关闭父子联动
-            </template>
-            <el-icon class="ml-1 color-[--el-color-primary] inline-block cursor-pointer">
-              <QuestionFilled />
-            </el-icon>
-          </el-tooltip>
-        </div>
-      </div>
-
-      <el-tree
-        ref="permTreeRef"
-        node-key="value"
-        show-checkbox
-        :data="menuPermOptions"
-        :filter-node-method="handlePermFilter"
-        :default-expand-all="true"
-        :check-strictly="!parentChildLinked"
-        class="mt-5"
-      >
-        <template #default="{ data }">
-          {{ data.label }}
-        </template>
-      </el-tree>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button type="primary" @click="handleAssignPermSubmit">确 定</el-button>
-          <el-button @click="assignPermDialogVisible = false">取 消</el-button>
-        </div>
-      </template>
-    </el-drawer>
-  </div>
-</template>
-
 <script setup>
 import {ref,onMounted} from 'vue';
 // import RoleAPI, { RolePageVO, RoleForm, RolePageQuery } from "@/api/system/role";
 // import MenuAPI from "@/api/system/menu";
+import { Refresh, Plus, Delete, Search, Edit,Position,QuestionFilled } from '@element-plus/icons-vue'
 
 const queryFormRef = ref();
 const roleFormRef = ref();
@@ -439,3 +236,209 @@ onMounted(() => {
   handleQuery();
 });
 </script>
+
+<template>
+  <div class="app-container">
+    <el-card shadow="always">
+    <div class="search-bar">
+      <el-form ref="queryFormRef" :model="queryParams" :inline="true">
+        <el-form-item prop="keywords" label="关键字">
+          <el-input
+            v-model="queryParams.keywords"
+            placeholder="角色名称"
+            clearable
+            @keyup.enter="handleQuery"
+          />
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" :icon="Search" @click="handleQuery">搜索</el-button>
+          <el-button :icon="Refresh" @click="handleResetQuery">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+
+    <el-card shadow="never">
+      <div class="mb-10px">
+        <el-button type="success" :icon="Plus" @click="handleOpenDialog()">新增</el-button>
+        <el-button type="danger" :disabled="ids.length === 0" :icon="Delete" @click="handleDelete()">
+          删除
+        </el-button>
+      </div>
+
+      <el-table
+        ref="dataTableRef"
+        v-loading="loading"
+        :data="roleList"
+        highlight-current-row
+        border
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column label="角色名称" prop="name" min-width="100" />
+        <el-table-column label="角色编码" prop="code" width="150" />
+
+        <el-table-column label="状态" align="center" width="100">
+          <template #default="scope">
+            <el-tag v-if="scope.row.status === 1" type="success">正常</el-tag>
+            <el-tag v-else type="info">禁用</el-tag>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="排序" align="center" width="80" prop="sort" />
+
+        <el-table-column fixed="right" label="操作" width="220">
+          <template #default="scope">
+            <el-button
+              type="primary"
+              size="small"
+              link
+              :icon="Position"
+              @click="handleOpenAssignPermDialog(scope.row)"
+            >
+              分配权限
+            </el-button>
+            <el-button
+              type="primary"
+              size="small"
+              link
+              :icon="Edit"
+              @click="handleOpenDialog(scope.row.id)"
+            >
+              编辑
+            </el-button>
+            <el-button
+              type="danger"
+              size="small"
+              link
+              :icon="Delete"
+              @click="handleDelete(scope.row.id)"
+            >
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <pagination
+        v-if="total > 0"
+        v-model:total="total"
+        v-model:page="queryParams.pageNum"
+        v-model:limit="queryParams.pageSize"
+        @pagination="handleQuery"
+      />
+    </el-card>
+  </el-card>
+
+    <!-- 角色表单弹窗 -->
+    <el-dialog
+      v-model="dialog.visible"
+      :title="dialog.title"
+      width="500px"
+      @close="handleCloseDialog"
+    >
+      <el-form ref="roleFormRef" :model="formData" :rules="rules" label-width="100px">
+        <el-form-item label="角色名称" prop="name">
+          <el-input v-model="formData.name" placeholder="请输入角色名称" />
+        </el-form-item>
+
+        <el-form-item label="角色编码" prop="code">
+          <el-input v-model="formData.code" placeholder="请输入角色编码" />
+        </el-form-item>
+
+        <el-form-item label="数据权限" prop="dataScope">
+          <el-select v-model="formData.dataScope">
+            <el-option :key="0" label="全部数据" :value="0" />
+            <el-option :key="1" label="部门及子部门数据" :value="1" />
+            <el-option :key="2" label="本部门数据" :value="2" />
+            <el-option :key="3" label="本人数据" :value="3" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="状态" prop="status">
+          <el-radio-group v-model="formData.status">
+            <el-radio :value="1">正常</el-radio>
+            <el-radio :value="0">停用</el-radio>
+          </el-radio-group>
+        </el-form-item>
+
+        <el-form-item label="排序" prop="sort">
+          <el-input-number
+            v-model="formData.sort"
+            controls-position="right"
+            :min="0"
+            style="width: 100px"
+          />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleSubmit">确 定</el-button>
+          <el-button @click="handleCloseDialog">取 消</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <!-- 分配权限弹窗 -->
+    <el-drawer
+      v-model="assignPermDialogVisible"
+      :title="'【' + checkedRole.name + '】权限分配'"
+      size="500"
+    >
+      <div class="flex-x-between">
+        <el-input v-model="permKeywords" clearable class="w-[150px]" placeholder="菜单权限名称">
+          <template #prefix>
+            <Search />
+          </template>
+        </el-input>
+
+        <div class="flex-center ml-5">
+          <el-button type="primary" size="small" plain @click="togglePermTree">
+            <template #icon>
+              <Switch />
+            </template>
+            {{ isExpanded ? "收缩" : "展开" }}
+          </el-button>
+          <el-checkbox
+            v-model="parentChildLinked"
+            class="ml-5"
+            @change="handleparentChildLinkedChange"
+          >
+            父子联动
+          </el-checkbox>
+
+          <el-tooltip placement="bottom">
+            <template #content>
+              如果只需勾选菜单权限，不需要勾选子菜单或者按钮权限，请关闭父子联动
+            </template>
+            <el-icon class="ml-1 color-[--el-color-primary] inline-block cursor-pointer">
+              <QuestionFilled />
+            </el-icon>
+          </el-tooltip>
+        </div>
+      </div>
+
+      <el-tree
+        ref="permTreeRef"
+        node-key="value"
+        show-checkbox
+        :data="menuPermOptions"
+        :filter-node-method="handlePermFilter"
+        :default-expand-all="true"
+        :check-strictly="!parentChildLinked"
+        class="mt-5"
+      >
+        <template #default="{ data }">
+          {{ data.label }}
+        </template>
+      </el-tree>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button type="primary" @click="handleAssignPermSubmit">确 定</el-button>
+          <el-button @click="assignPermDialogVisible = false">取 消</el-button>
+        </div>
+      </template>
+    </el-drawer>
+  </div>
+</template>
