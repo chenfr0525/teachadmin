@@ -12,18 +12,50 @@ const router = createRouter({
       component: () => import('@/views/Preview.vue')
     },
     {
-      path: '/user',
+      path: '/',
       component: () => import('@/views/studentpage/LayoutContainer.vue'),
       redirect:'/user/home',
       children:[
         {
           path:'/user/home',
           component:()=>import('@/views/studentpage/HomePage.vue')
+        },
+        {
+          path:'/user/info',
+          component:()=>import('@/views/studentpage/infomation/index.vue')
+        },
+        {
+          path:'/user/codelearn',
+          component:()=>import('@/views/studentpage/codeLearn/index.vue')
+        },
+        {
+          path:'/user/codeteach',
+          component:()=>import('@/views/studentpage/codeTeach/index.vue')
+        },
+        {
+          path:'/user/knowledgeintegrate',
+          component:()=>import('@/views/studentpage/knowledgeIntegrate/index.vue')
+        },
+        {
+          path:'/user/personlearn',
+          component:()=>import('@/views/studentpage/personLearn/index.vue')
+        },
+        {
+          path:'/user/smartanswer',
+          component:()=>import('@/views/studentpage/smartAnswer/index.vue')
+        },
+        {
+          path:'/user/userprofile',
+          component:()=>import('@/views/studentpage/userinfo/UserProfile.vue')
+        },
+        {
+          path:'/user/updateInfo',
+          component:()=>import('@/views/studentpage/userinfo/UpdateInfo.vue')
         }
       ]
     },
     {
-      path: '/',
+      path: '/admin',
       component: () => import('@/views/manage/LayoutContainer.vue'),
       redirect: '/admin/home',
       children: [

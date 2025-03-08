@@ -17,11 +17,11 @@ const item = {
 
       <el-space>
         <img src="../../assets/智教链logo.png" alt="" style="width: 60px;border-radius: 50%;">
-        <h1>智教链后台</h1>
+        <h1>智教链</h1>
       </el-space>
 
       <el-space :size="25">
-        <div class="username">管理员：<strong>user</strong></div>
+        <div class="username">学生：<strong>Candy</strong></div>
         <!-- 下拉菜单 -->
         <el-dropdown placement="bottom-end" @command="handleCommand">
           <!-- 展示给用户，默认看到的 -->
@@ -48,36 +48,58 @@ const item = {
     <el-container>
       <el-aside width="180px">
         <el-menu text-color="#fff" active-text-color="#ffcc00" background-color="#5e8d83" :default-active="$route.path" router>
-          <el-menu-item index="/admin/home">
+          <el-menu-item index="/user/home">
             <el-icon>
               <Management />
             </el-icon>
             <span>首页</span>
           </el-menu-item>
-          <el-menu-item index="/system/student">
+          <el-menu-item index="/user/info">
             <el-icon>
               <Management />
             </el-icon>
-            <span>学生管理</span>
+            <span>信息</span>
           </el-menu-item>
-          <el-menu-item index="/system/role">
+          <el-menu-item index="/user/codeteach">
             <el-icon>
               <Management />
             </el-icon>
-            <span>角色管理</span>
+            <span>代码辅导</span>
           </el-menu-item>
-          <el-menu-item index="/system/notice">
+          <el-menu-item index="/user/codelearn">
             <el-icon>
               <Management />
             </el-icon>
-            <span>通知公告</span>
+            <span>代码学习</span>
           </el-menu-item>
-          <el-menu-item index="/system/log">
-            <el-icon>
-              <Management />
-            </el-icon>
-            <span>系统日志</span>
-          </el-menu-item>
+          <!-- 多级菜单的标题 -具名插槽 title-->
+          <el-sub-menu index="/user">
+            <template #title>
+              <el-icon>
+                <UserFilled />
+              </el-icon>
+              <span>个性化多轮回答</span>
+            </template>
+            <!-- 展开的内容 -默认插槽 -->
+            <el-menu-item index="/user/knowledgeintegrate">
+              <el-icon>
+                <User />
+              </el-icon>
+              <span>知识集成</span>
+            </el-menu-item>
+            <el-menu-item index="/user/smartanswer">
+              <el-icon>
+                <Crop />
+              </el-icon>
+              <span>智能回答</span>
+            </el-menu-item>
+            <el-menu-item index="/user/personlearn">
+              <el-icon>
+                <Crop />
+              </el-icon>
+              <span>个性化学习</span>
+            </el-menu-item>
+          </el-sub-menu>
           <!-- 多级菜单的标题 -具名插槽 title-->
           <el-sub-menu index="/myinfo">
             <template #title>
@@ -93,16 +115,15 @@ const item = {
               </el-icon>
               <span>个人资料</span>
             </el-menu-item>
-            <el-menu-item index="/myinfo/password">
+            <el-menu-item index="/myinfo/updateuser">
               <el-icon>
                 <Crop />
               </el-icon>
-              <span>修改密码</span>
+              <span>修改信息</span>
             </el-menu-item>
           </el-sub-menu>
         </el-menu>
       </el-aside>
-
       <el-main style="padding: 20px;">
         <el-scrollbar>
           <router-view></router-view>

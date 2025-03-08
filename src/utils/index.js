@@ -14,3 +14,13 @@ export function formatGrowthRate(growthRate) {
     .replace(/\.?0+$/, "");
   return formattedRate + "%";
 }
+
+/**
+ * 生成[min,max]的随机数
+ * 
+ * @param min,max
+ * @returns
+ */
+export function getRandomNum(min,max){
+  return Math.floor(Math.random()*(max-min+1)+min)
+}

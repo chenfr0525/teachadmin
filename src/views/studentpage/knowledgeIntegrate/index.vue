@@ -1,0 +1,220 @@
+<template>
+  <el-row>
+    <el-col :span="24">
+      <el-card shadow="hover" class="showImg">
+        <h1>你好！{{ 'Candy' }}</h1>
+        <span>在这个充满挑战与机遇的时代，学习新知识和技能变得比以往任何时候都重要。我们的课程都将为你提供宝贵的学习机会。</span>
+        <p>现在开始学习吧</p>
+      </el-card>
+    </el-col>
+  </el-row>
+  <el-row class="main-space" :gutter="20">
+    <el-col :span="17">
+      <el-card shadow="never">
+        <h2 style="margin-bottom: 10px;">推荐</h2>
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <el-card shadow="hover" class="recom-body">
+              <div class="recommand">
+                <img src="../../../assets/recommand1.jpg" alt="">
+                <span>数据结构与算法</span>
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :span="8">
+            <el-card shadow="hover" class="recom-body">
+              <div class="recommand">
+                <img src="../../../assets/recommand1.jpg" alt="">
+                <span>数据结构与算法</span>
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :span="8">
+            <el-card shadow="hover" class="recom-body">
+              <div class="recommand">
+                <img src="../../../assets/recommand1.jpg" alt="">
+                <span>数据结构与算法</span>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+        <h2 style="margin-bottom: 10px;">精选</h2>
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <el-card shadow="hover" class="recom-body">
+              <div class="recommand">
+                <img src="../../../assets/recommand1.jpg" alt="">
+                <span>数据结构与算法</span>
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :span="8">
+            <el-card shadow="hover" class="recom-body">
+              <div class="recommand">
+                <img src="../../../assets/recommand1.jpg" alt="">
+                <span>数据结构与算法</span>
+              </div>
+            </el-card>
+          </el-col>
+          <el-col :span="8">
+            <el-card shadow="hover" class="recom-body">
+              <div class="recommand">
+                <img src="../../../assets/recommand1.jpg" alt="">
+                <span>数据结构与算法</span>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
+      </el-card>
+    </el-col>
+    <el-col :span="7">
+      <el-card shadow="never" class="banner">
+        <el-row>
+          <el-col :span="24">
+            <el-card shadow="hover">
+              <el-row>
+                <el-col :span="8">
+                  <img src="../../../assets/1.jpg" alt="">
+                </el-col>
+                <el-col :span="16">
+                  <div class="img-text">
+                    <p>资深专家</p>
+                    <p> 亲传授课</p>
+                  </div>
+                </el-col>
+              </el-row>
+            </el-card>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-card shadow="hover">
+              <el-row>
+                <el-col :span="8">
+                  <img src="../../../assets/1.jpg" alt="">
+                </el-col>
+                <el-col :span="16">
+                  <div class="img-text">
+                    <p>独家教程</p>
+                    <p>学习高效</p>
+                  </div>
+                </el-col>
+              </el-row>
+            </el-card>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-card shadow="hover">
+              <el-row>
+                <el-col :span="8">
+                  <img src="../../../assets/1.jpg" alt="">
+                </el-col>
+                <el-col :span="16">
+                  <div class="img-text">
+                    <p>陪伴式教学</p>
+                    <p>时间自由安排</p>
+                  </div>
+                </el-col>
+              </el-row>
+            </el-card>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="24">
+            <el-card shadow="hover">
+              <el-row>
+                <el-col :span="8">
+                  <img src="../../../assets/1.jpg" alt="">
+                </el-col>
+                <el-col :span="16">
+                  <div class="img-text">
+                    <p>陪伴式教学</p>
+                    <p>时间自由安排</p>
+                  </div>
+                </el-col>
+              </el-row>
+            </el-card>
+          </el-col>
+        </el-row>
+      </el-card>
+    </el-col>
+  </el-row>
+</template>
+
+<style lang="scss">
+.showImg {
+  width: 100%;
+  height: 250px;
+  background-color: #99cc99;
+
+  .el-card__body {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    color: #fff;
+
+    span {
+      font-size: 17px;
+    }
+  }
+}
+
+.main-space {
+  margin-top: 20px;
+
+  .recom-body {
+    --el-card-padding: 0;
+    border-radius: 10px 10px 5px 5px;
+
+    .recommand {
+      width: 100%;
+      height: 235px;
+
+      img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+      }
+
+      span {
+        display: block;
+        width: 100%;
+        height: 55px;
+        line-height: 55px;
+        text-align: center;
+      }
+    }
+  }
+
+  .banner {
+    .el-row {
+      margin-top: 20px;
+
+      .el-card {
+        img {
+          width: 75px;
+          height: 75px;
+          border-radius: 50%;
+        }
+
+        .img-text {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+
+    .el-row:nth-child(1) {
+      margin: 0;
+    }
+  }
+}
+</style>
