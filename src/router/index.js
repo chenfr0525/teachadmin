@@ -72,6 +72,10 @@ const router = createRouter({
           component: () => import('@/views/studentpage/personLearn/index.vue')
         },
         {
+          path: '/user/personlearndetail',
+          component: () => import('@/views/studentpage/personLearn/components/Detail.vue')
+        },
+        {
           path: '/user/smartanswer',
           component: () => import('@/views/studentpage/smartAnswer/index.vue')
         },

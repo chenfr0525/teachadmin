@@ -1,5 +1,7 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+const router = useRouter()
 
 // 用户画像数据
 const profile = ref({
@@ -59,6 +61,7 @@ const saveProfile = () => {
 const startLearning = (item) => {
   console.log('开始学习：', item.title);
   // 这里可以跳转到学习页面
+  router.push('/user/personlearndetail')
 };
 </script>
 

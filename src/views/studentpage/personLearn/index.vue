@@ -21,14 +21,9 @@ const handleSetProfile = (newProfile) => {
 </script>
 
 <template>
-  <div class="demo-main">
     <!-- 空页面 -->
     <EmptyPage v-if="!isProfileSet" @set-profile="handleSetProfile" />
 
     <!-- 个性化学习页面 -->
     <PersonalizedLearning v-else :profile="profile" />
-  </div>
 </template>
-
-<style scoped lang="scss">
-</style>
