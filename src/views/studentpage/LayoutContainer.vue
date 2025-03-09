@@ -1,12 +1,32 @@
 <script setup>
 import { Management, CaretBottom, User,Crop,EditPen,SwitchButton,UserFilled } from '@element-plus/icons-vue'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+const router=useRouter()
 
 const item = {
   date: '2016-05-02',
   name: 'Tom',
   address: 'No. 189, Grove St, Los Angeles',
 }
+
+// 下拉菜单
+const handleCommand = async (key) =>{
+  if(key === 'logout'){
+    //退出操作
+    await ElMessageBox.confirm('你确认要退出吗？','温馨提示',{
+      type: 'warning',
+      confirmButtonText: '确认',
+      cancelButtonText: '取消'
+    })
+    // userStore.removeToken()
+    // userStore.setUser({})
+    // router.push('/login')
+  }else {
+    //跳转操作
+    router.push(`/user/${key}`)
+  }
+} 
 
 </script>
 
@@ -34,9 +54,8 @@ const item = {
           <!-- 折叠的下拉部分 -->
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item command="profile" :icon="User">基本资料</el-dropdown-item>
-              <el-dropdown-item command="avatar" :icon="Crop">更换头像</el-dropdown-item>
-              <el-dropdown-item command="password" :icon="EditPen">重置密码</el-dropdown-item>
+              <el-dropdown-item command="userprofile" :icon="User">个人信息</el-dropdown-item>
+              <el-dropdown-item command="updateInfo" :icon="EditPen">修改信息</el-dropdown-item>
               <el-dropdown-item command="logout" :icon="SwitchButton">退出登录</el-dropdown-item>
             </el-dropdown-menu>
           </template>
@@ -109,13 +128,13 @@ const item = {
               <span>个人中心</span>
             </template>
             <!-- 展开的内容 -默认插槽 -->
-            <el-menu-item index="/myinfo/profile">
+            <el-menu-item index="/user/userprofile">
               <el-icon>
                 <User />
               </el-icon>
               <span>个人资料</span>
             </el-menu-item>
-            <el-menu-item index="/myinfo/updateuser">
+            <el-menu-item index="/user/updateInfo">
               <el-icon>
                 <Crop />
               </el-icon>

@@ -160,7 +160,8 @@ onMounted(() => {
         </el-card>
       </el-col>
       <el-col :span="8">
-        <el-card shadow="hover">
+        <el-link href="/user/info">
+          <el-card shadow="hover">
           <template #header>
             <div class="info-title">
               <h2>信息</h2>
@@ -201,6 +202,7 @@ onMounted(() => {
             <el-empty v-else :image-size="200" />
           </div>
         </el-card>
+        </el-link>
       </el-col>
     </el-row>
   </el-card>

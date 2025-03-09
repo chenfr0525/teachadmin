@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { Iphone, Location,Tickets, User } from '@element-plus/icons-vue'
+import { Plus,Iphone, Location,Tickets, User,Upload } from '@element-plus/icons-vue'
 
 const isEditIntro = ref(true)
 const introduce = ref('')
@@ -27,7 +27,7 @@ const introduce = ref('')
             <div class="intru">
               <h1>个人简介</h1>
               <p v-if="isEditIntro">这人很懒，还没有写个人介绍！</p>
-              <el-input v-else v-model="introduce" maxlength="200" :rows="8" style="width: 200px;;" placeholder="请输入信息"
+              <el-input v-else v-model="introduce" maxlength="200" :rows="8" style="width: 240px;;" placeholder="请输入信息"
                 show-word-limit type="textarea" />
               <el-button style="margin: 20px 45px;" v-if="isEditIntro" type="primary"
                 @click="isEditIntro = false">编辑简介</el-button>
@@ -82,6 +82,7 @@ const introduce = ref('')
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    text-align: center;
 
 
     .update-avatar {
@@ -133,6 +134,7 @@ const introduce = ref('')
 
         p {
           height: 100px;
+          text-align: start;
         }
 
       }

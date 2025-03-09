@@ -1,3 +1,20 @@
+<script setup>
+import { ref } from 'vue'
+
+// 模拟课程数据
+const recomCourses = ref([
+  { id: 1, title: '数据结构与算法', description: '深入学习数据结构与算法的核心知识。', image: 'https://via.placeholder.com/300x200' },
+  { id: 2, title: '前端开发入门', description: '从零开始学习 HTML、CSS 和 JavaScript。', image: 'https://via.placeholder.com/300x200' },
+  { id: 3, title: 'Vue 3 实战', description: '掌握 Vue 3 的核心概念和实战技巧。', image: 'https://via.placeholder.com/300x200' },
+]);
+const selectCourses = ref([
+  { id: 4, title: 'Python 编程', description: '学习 Python 基础语法和高级特性。', image: 'https://via.placeholder.com/300x200' },
+  { id: 5, title: '机器学习入门', description: '了解机器学习的基本概念和算法。', image: 'https://via.placeholder.com/300x200' },
+  { id: 6, title: '数据库设计与优化', description: '学习数据库设计原则和优化技巧。', image: 'https://via.placeholder.com/300x200' },
+
+])
+</script>
+
 <template>
   <el-row>
     <el-col :span="24">
@@ -13,56 +30,28 @@
       <el-card shadow="never">
         <h2 style="margin-bottom: 10px;">推荐</h2>
         <el-row :gutter="20">
-          <el-col :span="8">
-            <el-card shadow="hover" class="recom-body">
+          <el-col :span="8" v-for="course in recomCourses" :key="course.id">
+            <router-link :to="`/user/knowledgeintegrate/course/${course.id}`">
+              <el-card shadow="hover" class="recom-body">
               <div class="recommand">
                 <img src="../../../assets/recommand1.jpg" alt="">
-                <span>数据结构与算法</span>
+                <span>{{ course.title }}</span>
               </div>
             </el-card>
-          </el-col>
-          <el-col :span="8">
-            <el-card shadow="hover" class="recom-body">
-              <div class="recommand">
-                <img src="../../../assets/recommand1.jpg" alt="">
-                <span>数据结构与算法</span>
-              </div>
-            </el-card>
-          </el-col>
-          <el-col :span="8">
-            <el-card shadow="hover" class="recom-body">
-              <div class="recommand">
-                <img src="../../../assets/recommand1.jpg" alt="">
-                <span>数据结构与算法</span>
-              </div>
-            </el-card>
+            </router-link>
           </el-col>
         </el-row>
         <h2 style="margin-bottom: 10px;">精选</h2>
         <el-row :gutter="20">
-          <el-col :span="8">
-            <el-card shadow="hover" class="recom-body">
+          <el-col :span="8" v-for="course in selectCourses" :key="course.id">
+            <router-link :to="`/user/knowledgeintegrate/course/${course.id}`">
+              <el-card shadow="hover" class="recom-body">
               <div class="recommand">
                 <img src="../../../assets/recommand1.jpg" alt="">
-                <span>数据结构与算法</span>
+                <span>{{ course.title }}</span>
               </div>
             </el-card>
-          </el-col>
-          <el-col :span="8">
-            <el-card shadow="hover" class="recom-body">
-              <div class="recommand">
-                <img src="../../../assets/recommand1.jpg" alt="">
-                <span>数据结构与算法</span>
-              </div>
-            </el-card>
-          </el-col>
-          <el-col :span="8">
-            <el-card shadow="hover" class="recom-body">
-              <div class="recommand">
-                <img src="../../../assets/recommand1.jpg" alt="">
-                <span>数据结构与算法</span>
-              </div>
-            </el-card>
+            </router-link>
           </el-col>
         </el-row>
       </el-card>
