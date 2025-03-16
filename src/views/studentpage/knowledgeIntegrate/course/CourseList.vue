@@ -1,28 +1,32 @@
 <script setup>
-import { ref, computed } from 'vue';
+import {getRecommendorClassic} from '@/api/course'
+import { ref, computed,onMounted } from 'vue';
 import { Search } from '@element-plus/icons-vue';
 
 // 模拟课程数据
-const courses = ref([
-  { id: 1, title: '数据结构与算法', description: '深入学习数据结构与算法的核心知识。', image: 'https://via.placeholder.com/300x200' },
-  { id: 2, title: '前端开发入门', description: '从零开始学习 HTML、CSS 和 JavaScript。', image: 'https://via.placeholder.com/300x200' },
-  { id: 3, title: 'Vue 3 实战', description: '掌握 Vue 3 的核心概念和实战技巧。', image: 'https://via.placeholder.com/300x200' },
-  { id: 4, title: 'Python 编程', description: '学习 Python 基础语法和高级特性。', image: 'https://via.placeholder.com/300x200' },
-  { id: 5, title: '机器学习入门', description: '了解机器学习的基本概念和算法。', image: 'https://via.placeholder.com/300x200' },
-  { id: 6, title: '数据库设计与优化', description: '学习数据库设计原则和优化技巧。', image: 'https://via.placeholder.com/300x200' },
-]);
+const courses = ref([]);
+
+//获取课程列表
+const getCourseList=async()=>{
+  const res=await getRecommendorClassic()
+  courses.value=res.data.data.courses
+}
+
+onMounted(()=>{
+  getCourseList()
+})
 
 // 搜索查询
 const searchQuery = ref('');
 
 // 分页
 const currentPage = ref(1);
-const pageSize = 6;
+const pageSize = 8;
 
 // 过滤课程
 const filteredCourses = computed(() => {
   return courses.value.filter((course) =>
-    course.title.toLowerCase().includes(searchQuery.value.toLowerCase())
+    course.name.toLowerCase().includes(searchQuery.value.toLowerCase())
   );
 });
 
@@ -73,9 +77,9 @@ const handlePageChange = (page) => {
         >
         <router-link :to="`/user/knowledgeintegrate/course/${course.id}`">
           <el-card class="course-card">
-            <img src="../../../../assets/1.jpg" alt="课程封面" class="course-image" />
+            <img :src="course.image_url" :alt="course.name" class="course-image_url" />
             <div class="course-info">
-              <h3 class="course-title">{{ course.title }}</h3>
+              <h3 class="course-name">{{ course.name }}</h3>
               <p class="course-description">{{ course.description }}</p>
             </div>
           </el-card>
@@ -126,8 +130,8 @@ const handlePageChange = (page) => {
         transform: translateY(-5px);
       }
 
-      .course-image {
-        width: 100%;
+      .course-image_url {
+        width: 235px;
         height: 150px;
         object-fit: cover;
       }
@@ -135,7 +139,7 @@ const handlePageChange = (page) => {
       .course-info {
         padding: 10px;
 
-        .course-title {
+        .course-name {
           font-size: 18px;
           margin-bottom: 10px;
           color: #5e8d83;

@@ -1,21 +1,33 @@
 <script setup>
-import {ref,watch} from 'vue'
-import {User,Lock} from '@element-plus/icons-vue'
-const isRegister=ref(false)
+import { studentLoginService, studentRegisterService } from '@/api/student'
+import { adminRegisterService, adminLoginService } from '@/api/admin'
+import { ref, watch } from 'vue'
+import { User, Lock } from '@element-plus/icons-vue'
+import { useStudentStore, useAdminStore } from '@/stores'
 
-const form=ref()
+import { useRouter } from 'vue-router'
+const isRegister = ref(false)
+
+const form = ref()
 //注册
-const formModel=ref({
-  username:'',
-  password:'',
-  repassword:'',
-  role:'student'
+const formModel = ref({
+  username: '',
+  password: '',
+  repassword: '',
+  gender: 'man',
+  phone: '',
+  role: 'student'
 })
 
-const rules={
+const rules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 5, max: 10, message: '用户名必须是 5-10位 的字符', trigger: 'blur' }
+    { min: 2, max: 10, message: '用户名必须是 2-10位 的字符', trigger: 'blur' }
+  ],
+  phone: [
+    { required: true, message: '请输入电话号码', trigger: 'blur', },
+    { len: 11, message: '电话号码必须是 11 位数字', trigger: 'blur', },
+    { pattern: /^[0-9]+$/, message: '电话号码必须由数字组成', trigger: 'blur', },
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
@@ -38,13 +50,49 @@ const rules={
   ]
 }
 
+//注册
+const register = async () => {
+  await form.value.validate()
+  if (formModel.value.role === 'student') {
+    const res = await studentRegisterService(formModel.value)
+  } else if (formModel.value.role === 'admin') {
+
+    const res = await adminRegisterService(formModel.value)
+    console.log(res);
+  }
+
+  ElMessage.success('注册成功')
+  isRegister.value = false
+}
+
+const studentStore = useStudentStore()
+const adminStore = useAdminStore()
+const router = useRouter()
+//登录
+const login = async () => {
+  await form.value.validate()
+  if (formModel.value.role === 'student') {
+    const res = await studentLoginService(formModel.value)
+    studentStore.setToken(res.data.data.token)
+    ElMessage.success(res.data.message || '登陆成功')
+    router.push('/')
+  } else if (formModel.value.role === 'admin') {
+    const res = await adminLoginService(formModel.value)
+    adminStore.setToken(res.data.data.token)
+    ElMessage.success(res.data.message || '登陆成功')
+    router.push('/admin')
+  }
+}
+
 //切换时重置表单
-watch(isRegister,()=>{
-  formModel.value={
-    username:'',
-    password:'',
-    repassword:'',
-    role:'student'
+watch(isRegister, () => {
+  formModel.value = {
+    username: '',
+    password: '',
+    repassword: '',
+    gender: 'man',
+    phone: '',
+    role: 'student'
   }
 })
 
@@ -55,12 +103,21 @@ watch(isRegister,()=>{
     <el-col :span="12" class="bg"></el-col>
     <el-col :span="6" :offset="3" class="form">
       <!-- 注册表单 -->
-       <el-form :model="formModel" :rules="rules" ref="form" size="large" autocomplete="off" v-if="isRegister">
+      <el-form :model="formModel" :rules="rules" ref="form" size="large" autocomplete="off" v-if="isRegister">
         <el-form-item>
           <h1 class="title">注册</h1>
         </el-form-item>
         <el-form-item prop="username">
           <el-input v-model="formModel.username" :prefix-icon="User" placeholder="请输入用户名"></el-input>
+        </el-form-item>
+        <el-form-item prop="gender">
+          <el-radio-group v-model="formModel.gender">
+            <el-radio label="man" value="1">男</el-radio>
+            <el-radio label="woman" value="0">女</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item prop="phone">
+          <el-input v-model="formModel.phone" :prefix-icon="Lock" placeholder="请输入电话号码"></el-input>
         </el-form-item>
         <el-form-item prop="password">
           <el-input v-model="formModel.password" :prefix-icon="Lock" type="password" placeholder="请输入密码"></el-input>
@@ -69,9 +126,8 @@ watch(isRegister,()=>{
           <el-input v-model="formModel.repassword" :prefix-icon="Lock" type="password" placeholder="请输入再次密码"></el-input>
         </el-form-item>
         <el-form-item prop="role">
-          <el-radio-group v-model="formModel.role" >
+          <el-radio-group v-model="formModel.role">
             <el-radio label="student" value="student">学生端</el-radio>
-            <el-radio label="teacher" value="teacher">教师端</el-radio>
             <el-radio label="admin" value="admin">管理员端</el-radio>
           </el-radio-group>
         </el-form-item>
@@ -85,7 +141,7 @@ watch(isRegister,()=>{
             ← 返回
           </el-link>
         </el-form-item>
-       </el-form>
+      </el-form>
       <!-- 登录表单 -->
       <el-form :model="formModel" :rules="rules" ref="form" size="large" autocomplete="off" v-else>
         <el-form-item>
@@ -104,7 +160,7 @@ watch(isRegister,()=>{
           </el-radio-group>
         </el-form-item>
         <el-form-item>
-          <el-button @click="login" class="button"  auto-insert-space>
+          <el-button @click="login" class="button" auto-insert-space>
             登录
           </el-button>
         </el-form-item>
@@ -113,7 +169,7 @@ watch(isRegister,()=>{
             注册 →
           </el-link>
         </el-form-item>
-      </el-form> 
+      </el-form>
     </el-col>
   </el-row>
 </template>
@@ -135,7 +191,7 @@ watch(isRegister,()=>{
   justify-content: center;
 }
 
-.login-page .form .title{
+.login-page .form .title {
   margin: 0 auto;
 }
 
@@ -150,5 +206,4 @@ watch(isRegister,()=>{
   display: flex;
   justify-content: space-between;
 }
-
 </style>

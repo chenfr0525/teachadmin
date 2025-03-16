@@ -1,35 +1,29 @@
 <script setup>
-import { ref, computed } from 'vue';
+import {getAlgorithmService} from '@/api/codelearn'
+import { ref, computed,onMounted } from 'vue';
+
+// 基础算法集锦数据
+const algorithms = ref([]);
+
+// 分页
+const currentPage = ref(1);
+const pageSize = 5;
+
+//获取算法集锦
+const getAlgorithms = async () => {
+  const res = await getAlgorithmService();
+  algorithms.value = res.data.data.basicalgorithms;
+};
+
+onMounted(() => {
+  getAlgorithms()
+})
 
 // 当前展开的算法项
 const activeAlgorithms = ref([]);
 
 // 搜索查询
 const searchQuery = ref('');
-
-// 分页
-const currentPage = ref(1);
-const pageSize = 5;
-
-// 基础算法集锦数据
-const algorithms = ref([
-  {
-    title: '快速排序',
-    code: `function quickSort(arr) {
-  if (arr.length <= 1) return arr;
-  const pivot = arr[0];
-  const left = [];
-  const right = [];
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i] < pivot) left.push(arr[i]);
-    else right.push(arr[i]);
-  }
-  return [...quickSort(left), pivot, ...quickSort(right)];
-}`,
-    description: '快速排序是一种分治算法，通过选择一个基准元素将数组分为两部分，然后递归排序。',
-  },
-  // 其他算法数据...
-]);
 
 // 过滤算法
 const filteredAlgorithms = computed(() => {
@@ -64,9 +58,9 @@ const handleSearch = () => {
     <!-- 算法列表 -->
     <el-collapse v-model="activeAlgorithms">
       <el-collapse-item
-        v-for="(algorithm, index) in paginatedAlgorithms"
-        :key="index"
-        :name="index"
+        v-for="algorithm in paginatedAlgorithms"
+        :key="algorithm.id"
+        :name="algorithm.id"
       >
       <template #title>
         <div class="algorithm-title">
@@ -110,7 +104,7 @@ const handleSearch = () => {
 
     .algorithm-title {
       padding-left: 20px;
-      font-size: 20px;
+      font-size: 17px;
       color: #333;
     }
 

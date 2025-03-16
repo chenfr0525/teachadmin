@@ -1,15 +1,3 @@
-<template>
-  <div class="course-detail">
-    <!-- 返回按钮 -->
-    <el-button type="text" @click="goBack" class="back-button">
-      <el-icon>
-        <ArrowLeft />
-      </el-icon> 返回课程列表
-    </el-button>
-    <CourseItem :courseId="courseId"/>
-  </div>
-</template>
-
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
 import { ArrowLeft } from '@element-plus/icons-vue';
@@ -26,6 +14,18 @@ const goBack = () => {
 };
 
 </script>
+
+<template>
+  <div class="course-detail">
+    <!-- 返回按钮 -->
+    <el-button link @click="goBack" class="back-button">
+      <el-icon>
+        <ArrowLeft />
+      </el-icon> 返回课程列表
+    </el-button>
+    <CourseItem :courseId="courseId"/>
+  </div>
+</template>
 
 <style scoped lang="scss">
 .course-detail {

@@ -111,10 +111,6 @@ const router = createRouter({
           component: () => import('@/views/manage/notice/index.vue')
         },
         {
-          path: '/system/log',
-          component: () => import('@/views/manage/log/index.vue')
-        },
-        {
           path: '/myinfo/profile',
           component: () => import('@/views/manage/profile/MyInfo.vue')
         },

@@ -1,39 +1,74 @@
 <script setup>
-import { ref } from 'vue';
+import { updatePlanService } from '@/api/plan'
+import { getRecommendorClassic } from '@/api/course'
+import { useStudentStore } from '@/stores'
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 const router = useRouter()
+const studentStore = useStudentStore()
+
+//form里的plan计划
+const formPlan = ref({
+  goal: '',
+  interests: [],
+  level: '',
+})
 
 // 用户画像数据
-const profile = ref({
-  goal: '掌握前端开发技能',
-  interests: ['前端开发', '数据科学'],
-  level: '中级',
+const plan = ref({
+  goal: '',
+  interests: '',
+  level: '初级',
 });
 
+const form = ref()
+
+//设置规则
+const rules = {
+  goal: [
+    { required: true, message: '请输入你的学习目标', trigger: 'blur' },
+    { min: 2, max: 30, message: '学习目标必须是 2-30位 的字符', trigger: 'blur' }
+  ],
+  interests: [
+    { type: 'array', required: true, message: '请至少选择一个兴趣', trigger: 'change' }
+  ]
+}
+
+const getPlanContent = () => {
+  plan.value = studentStore.plan
+  let planList = studentStore.plan
+  planList.interests = typeof planList.interests === 'string'
+    ? planList.interests.split(',') // 如果是字符串，用逗号分割成数组
+    : Array.isArray(planList.interests)
+      ? planList.interests // 如果已经是数组，直接使用
+      : []; // 如果不是字符串也不是数组，返回空数组
+  formPlan.value = planList
+}
+
 // 推荐内容数据
-const recommendations = ref([
-  {
-    title: 'Vue 3 入门教程',
-    description: '学习 Vue 3 的基础知识，掌握核心概念和用法。',
-    type: '视频',
-    duration: '2小时',
-    difficulty: '初级',
-  },
-  {
-    title: 'Python 数据分析',
-    description: '使用 Python 进行数据清洗、分析和可视化。',
-    type: '文章',
-    duration: '1小时',
-    difficulty: '中级',
-  },
-  {
-    title: '机器学习实战',
-    description: '通过实战项目学习机器学习算法和应用。',
-    type: '项目',
-    duration: '5小时',
-    difficulty: '高级',
-  },
-]);
+const recommendations = ref([]);
+const typeRef = computed(() => {
+  let data
+  formPlan.value.interests.forEach((item) => {
+    if (item === '前端开发') {
+      data = '前端'
+    } else if (item === '后端开发') {
+      data = '后端'
+    } else if (item === '数据科学') {
+      data = '数据'
+    } else {
+      data = '智能'
+    }
+  })
+  return data
+})
+
+const getCourseContent = async () => {
+  let type = typeRef.value
+  const res = await getRecommendorClassic({ type })
+  recommendations.value = res.data.data.courses
+  console.log(recommendations.value)
+}
 
 // 学习进度数据
 const progress = ref([
@@ -42,27 +77,46 @@ const progress = ref([
   { title: '机器学习实战', status: '已完成', progress: '100%' },
 ]);
 
+const getProgress = () => {
+}
+
+onMounted(() => {
+  getPlanContent()
+  getCourseContent()
+})
+
+
 // 对话框是否可见
-const profileDialogVisible = ref(false);
+const planDialogVisible = ref(false);
 
 // 显示对话框
 const showProfileDialog = () => {
-  profileDialogVisible.value = true;
+  planDialogVisible.value = true;
 };
 
-// 保存用户画像
-const saveProfile = () => {
-  profileDialogVisible.value = false;
-  console.log('保存用户画像：', profile.value);
-  // 这里可以调用 API 保存用户数据
-};
+// 保存用户学习计划
+const saveProfile = async () => {
+  await form.value.validate()
+  const planList = formPlan.value
+  planList.interests = planList.interests.join(',')
+  await updatePlanService(planList)
+  studentStore.setPlan(planList)
+  formPlan.value = {
+    goal: plan.value.goal,
+    interests:[],
+    level: plan.value.level,
+  }
+  ElMessage.success('更新学习计划成功')
+  planDialogVisible.value = false
+  getCourseContent()
+}
 
 // 开始学习
 const startLearning = (item) => {
   console.log('开始学习：', item.title);
   // 这里可以跳转到学习页面
   router.push('/user/personlearndetail')
-};
+}
 </script>
 
 <template>
@@ -74,12 +128,13 @@ const startLearning = (item) => {
     </el-header>
 
     <!-- 用户画像 -->
-    <el-main class="profile-section">
+    <el-main class="plan-section">
       <h2 class="section-title">您的学习画像</h2>
       <el-descriptions :column="2" border>
-        <el-descriptions-item label="学习目标">{{ profile.goal }}</el-descriptions-item>
-        <el-descriptions-item label="兴趣领域">{{ profile.interests.join(', ') }}</el-descriptions-item>
-        <el-descriptions-item label="当前水平">{{ profile.level }}</el-descriptions-item>
+        <el-descriptions-item label="学习目标">{{ plan.goal }}</el-descriptions-item>
+        <el-descriptions-item label="兴趣领域">{{ Array.isArray(plan.interests) ? plan.interests.join(',') :
+          plan.interests}}</el-descriptions-item>
+        <el-descriptions-item label="当前水平">{{ plan.level }}</el-descriptions-item>
       </el-descriptions>
     </el-main>
 
@@ -87,15 +142,11 @@ const startLearning = (item) => {
     <el-main class="recommendations-section">
       <h2 class="section-title">为您推荐</h2>
       <el-row :gutter="20">
-        <el-col
-          v-for="(item, index) in recommendations"
-          :key="index"
-          :span="8"
-        >
+        <el-col v-for="course in recommendations.splice(0, 3)" :key="course.id" :span="8">
           <el-card class="recommendation-card">
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.description }}</p>
-            <el-button type="primary" @click="startLearning(item)">开始学习</el-button>
+            <h3>{{ course.name }}</h3>
+            <p>{{ course.description }}</p>
+            <el-button type="primary" @click="startLearning(course.id)">开始学习</el-button>
           </el-card>
         </el-col>
       </el-row>
@@ -112,29 +163,29 @@ const startLearning = (item) => {
     </el-main>
 
     <!-- 重新设置学习计划的对话框 -->
-    <el-dialog v-model="profileDialogVisible" title="重新设置学习计划" width="600px">
-      <el-form :model="profile" label-width="120px">
-        <el-form-item label="学习目标">
-          <el-input v-model="profile.goal" placeholder="请输入您的学习目标" />
+    <el-dialog v-model="planDialogVisible" title="重新设置学习计划" width="600px">
+      <el-form :model="formPlan" ref="form" :rules="rules" label-width="120px">
+        <el-form-item label="学习目标" prop="goal">
+          <el-input v-model="formPlan.goal" placeholder="请输入您的学习目标" />
         </el-form-item>
-        <el-form-item label="兴趣领域">
-          <el-checkbox-group v-model="profile.interests">
-            <el-checkbox label="前端开发" />
-            <el-checkbox label="后端开发" />
-            <el-checkbox label="数据科学" />
-            <el-checkbox label="人工智能" />
+        <el-form-item label="兴趣领域" prop="interests">
+          <el-checkbox-group v-model="formPlan.interests">
+            <el-checkbox label="前端开发" value="前端开发" />
+            <el-checkbox label="后端开发" value="后端开发" />
+            <el-checkbox label="数据科学" value="数据科学" />
+            <el-checkbox label="人工智能" value="人工智能" />
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item label="当前水平">
-          <el-radio-group v-model="profile.level">
-            <el-radio label="初级" />
-            <el-radio label="中级" />
-            <el-radio label="高级" />
+        <el-form-item label="当前水平" prop="level">
+          <el-radio-group v-model="formPlan.level">
+            <el-radio label="初级" value="初级" />
+            <el-radio label="中级" value="中级" />
+            <el-radio label="高级" value="高级" />
           </el-radio-group>
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="profileDialogVisible = false">取消</el-button>
+        <el-button @click="planDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="saveProfile">保存</el-button>
       </template>
     </el-dialog>
@@ -159,7 +210,7 @@ const startLearning = (item) => {
     }
   }
 
-  .profile-section,
+  .plan-section,
   .recommendations-section,
   .progress-section {
     background-color: white;

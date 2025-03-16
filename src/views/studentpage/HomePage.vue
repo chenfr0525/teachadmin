@@ -1,25 +1,79 @@
 <script setup>
+import { studenthomeGetService } from '@/api/home'
+import { getInfoService } from '@/api/information'
+import { useStudentStore } from '@/stores'
 import { ref, computed, onMounted } from 'vue'
 import { getRandomNum } from '@/utils'
 import { Bell } from '@element-plus/icons-vue'
+import { convertTimeToHours, formatDate } from '@/utils'
 //引入echat
 import * as echarts from 'echarts';
+const studentStore = useStudentStore()
+//学生名字
+const studentName = ref('')
+//轮播图
+const carousel = ref([])
+//激励语句
+const quote = ref('')
+//推荐
+const remend = ref([])
+//每周上线时间
+const weekList = ref({})
+const weektime = ref([0, 0, 0, 0, 0, 0, 0])
+//今日学习时间
+const todayTime = ref(0)
+//信息
+const info = ref([])
+const infoNum = computed(() => {
+  return info.value.reduce((sum, item) => {
+    return sum + (item.status === 1 ? 0 : 1)
+  }, 0)
+})
 
-//随机选择语句
-let sentences = [
-  '要偷偷努力，成为别人的遥不可及',
-  '世事千帆过，前方终会是温柔和月光。',
-  '你要悄悄努力，然后惊艳所有人.',
-  '从现在开始努力一切都还来得及',
-  '我正在追逐从前那个发光的自己',
-  '他们都假装颓废，你可别上当。',
-  '你不甘于沉沦，那就放手一搏.',
-  '再相逢时，希望我们都在最高处'
-]
-let sentenceNum = getRandomNum(1, sentences.length - 1)
+
+//获取首页数据信息
+const getData = async () => {
+  const res = await getInfoService()
+  //信息
+  info.value = res.data.data.informationstatuses
+  const data = await studenthomeGetService()
+  console.log(data.data.data)
+  //轮播图
+  carousel.value = data.data.data.carouselImage
+  //语句
+  let sentemnces = data.data.data.quote
+  let sentenNum = getRandomNum(1, sentemnces.length - 1)
+  quote.value = sentemnces[sentenNum].quote
+  //推荐
+  remend.value = data.data.data.remend
+  //今日学习时间
+  todayTime.value = convertTimeToHours(data.data.data.studytime[0].duration)
+  //每周上线时间
+  weekList.value = data.data.data.weektime[0]
+  weektime.value = getweektime()
+  createEchat()
+}
+
+//计算学习时间
+const getweektime = () => {
+  let week = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+  let list = []
+  for (let i = 0; i < week.length; i++) {
+    if (weekList.value[week[i]]) {
+      list.push(convertTimeToHours(weekList.value[week[i]]))
+    }
+  }
+  return list
+}
 
 //本周活跃度
-const activity = ref(3.5)
+const activity = computed(() => {
+  let sum = 0
+  for (let i = 0; i < weektime.value.length; i++) {
+    sum += weektime.value[i]
+  }
+  return (sum / 7).toFixed(2)
+})
 const activityType = computed(() => {
   let type, text
   if (activity.value >= 10) {
@@ -34,9 +88,12 @@ const activityType = computed(() => {
   } else if (activity.value >= 2.5) {
     type = 'primary'
     text = '你的学习进度很稳定，继续保持哦！'
-  } else {
+  } else if (activity.value > 0) {
     type = 'info'
     text = '你这周已经迈出了学习的第一步，非常棒！'
+  } else {
+    type = 'info'
+    text = '你这周还没开始行动，赶快动起来吧！'
   }
   return { type, text }
 })
@@ -55,17 +112,15 @@ function createEchat() {
       {
         name: '学习时长',
         type: 'bar',
-        data: [5, 20, 36, 10, 10, 20, 30]
+        data: weektime.value
       }
     ]
   });
 }
 
-//信息
-const infoNum=ref(3)
-
 onMounted(() => {
-  createEchat()
+  getData()
+  studentName.value = studentStore.user.username
 })
 </script>
 
@@ -75,19 +130,19 @@ onMounted(() => {
       <el-col :span="4">
         <el-card shadow="hover" class="top-pad">
           <div class="info">
-            <el-avatar :size="65" src="../../../assets/1.jpg" />
+            <el-avatar :size="65" src="@/assets/1.jpg" />
             <div class="info-title">
-              <h1>你好！{{ 'Candy' }}</h1>
-              <p>{{ sentences[sentenceNum] }}</p>
+              <h1>你好！{{ studentName }}</h1>
+              <p>{{ quote }}</p>
             </div>
           </div>
         </el-card>
         <el-card shadow="hover" style="margin-top: 10px;" class="doTime top-pad">
           <h3 class="doTime-title">今日学习时长</h3>
           <div class="doTime-progress">
-            <el-progress type="dashboard" :percentage="(6 / 24) * 100">
+            <el-progress type="dashboard" :percentage="(todayTime / 12) * 100">
               <template #default="{ percentage }">
-                <span class="percentage-value">{{ '6' }}小时{{ '30' }}分钟</span>
+                <span class="percentage-value">{{ todayTime }}小时</span>
               </template>
             </el-progress>
           </div>
@@ -97,7 +152,8 @@ onMounted(() => {
         <el-card shadow="hover" class="banner-pad">
           <div class="banner">
             <el-carousel height="400px">
-              <el-carousel-item v-for="item in 4" :key="item">
+              <el-carousel-item v-for="item in carousel" :key="item">
+                <img :src="item.image_url" alt="">
               </el-carousel-item>
             </el-carousel>
           </div>
@@ -109,37 +165,15 @@ onMounted(() => {
         <el-card shadow="never">
           <h2 style="margin-bottom: 10px;">推荐</h2>
           <el-row :gutter="20">
-            <el-col :span="6">
-              <el-card shadow="hover" class="recom-body">
-                <div class="recommand">
-                  <img src="../../assets/recommand1.jpg" alt="">
-                  <span>数据结构与算法</span>
-                </div>
-              </el-card>
-            </el-col>
-            <el-col :span="6">
-              <el-card shadow="hover" class="recom-body">
-                <div class="recommand">
-                  <img src="../../assets/recommand1.jpg" alt="">
-                  <span>数据结构与算法</span>
-                </div>
-              </el-card>
-            </el-col>
-            <el-col :span="6">
-              <el-card shadow="hover" class="recom-body">
-                <div class="recommand">
-                  <img src="../../assets/recommand1.jpg" alt="">
-                  <span>数据结构与算法</span>
-                </div>
-              </el-card>
-            </el-col>
-            <el-col :span="6">
-              <el-card shadow="hover" class="recom-body">
-                <div class="recommand">
-                  <img src="../../assets/recommand1.jpg" alt="">
-                  <span>数据结构与算法</span>
-                </div>
-              </el-card>
+            <el-col :span="6" v-for="item in remend" :key="item.id">
+              <el-link :underline="false" :href="`/user/${item.type}`">
+                <el-card shadow="hover" class="recom-body">
+                  <div class="recommand">
+                    <img src="../../assets/recommand1.jpg" alt="">
+                    <span>{{ item.name }}</span>
+                  </div>
+                </el-card>
+              </el-link>
             </el-col>
           </el-row>
         </el-card>
@@ -162,46 +196,35 @@ onMounted(() => {
       <el-col :span="8">
         <el-link href="/user/info">
           <el-card shadow="hover">
-          <template #header>
-            <div class="info-title">
-              <h2>信息</h2>
-              <el-link :underline="false" href="/user/info">
-                <template #default>
-                  <el-badge :value="infoNum">
-                <el-icon :size="20">
-                  <Bell />
-                </el-icon>
-              </el-badge>
-                </template>
-              </el-link>
+            <template #header>
+              <div class="info-title">
+                <h2>信息</h2>
+                <el-link :underline="false" href="/user/info">
+                  <template #default>
+                    <el-badge :value="infoNum">
+                      <el-icon :size="20">
+                        <Bell />
+                      </el-icon>
+                    </el-badge>
+                  </template>
+                </el-link>
+              </div>
+            </template>
+            <div class="info-body">
+              <div v-if="infoNum > 0" class="info-content">
+                <el-timeline style="max-width: 600px">
+                  <el-timeline-item v-for="item in info" :key="item.id" :timestamp="formatDate(item.createdAt)"
+                    placement="top">
+                    <el-card>
+                      <h4>{{ item.information.title }}</h4>
+                      <p>{{ item.information.content }}</p>
+                    </el-card>
+                  </el-timeline-item>
+                </el-timeline>
+              </div>
+              <el-empty v-else :image-size="200" style="width: 328px;" />
             </div>
-          </template>
-          <div class="info-body">
-            <div v-if="infoNum>0" class="info-content">
-              <el-timeline style="max-width: 600px">
-                <el-timeline-item timestamp="2018/4/12" placement="top">
-                  <el-card>
-                    <h4>Update Github template</h4>
-                    <p>Tom committed 2018/4/12 20:46</p>
-                  </el-card>
-                </el-timeline-item>
-                <el-timeline-item timestamp="2018/4/3" placement="top">
-                  <el-card>
-                    <h4>Update Github template</h4>
-                    <p>Tom committed 2018/4/3 20:46</p>
-                  </el-card>
-                </el-timeline-item>
-                <el-timeline-item timestamp="2018/4/2" placement="top">
-                  <el-card>
-                    <h4>Update Github template</h4>
-                    <p>Tom committed 2018/4/2 20:46</p>
-                  </el-card>
-                </el-timeline-item>
-              </el-timeline>
-            </div>
-            <el-empty v-else :image-size="200" />
-          </div>
-        </el-card>
+          </el-card>
         </el-link>
       </el-col>
     </el-row>

@@ -11,9 +11,9 @@
       <el-main class="courses-section">
         <h2 class="section-title">推荐课程</h2>
         <el-row :gutter="20">
-          <el-col v-for="(course, index) in courses" :key="index" :span="8">
-            <el-card class="course-card" @click="viewCourse(course)">
-              <h3>{{ course.title }}</h3>
+          <el-col v-for="course in courses" :key="course.id" :span="8">
+            <el-card class="course-card" @click="viewCourse(course.id)">
+              <h3>{{ course.name }}</h3>
               <p>{{ course.description }}</p>
             </el-card>
           </el-col>
@@ -67,14 +67,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import {getCommonErrorService} from '@/api/codelearn'
+import {getAlgorithmService} from '@/api/codelearn'
+import {getRecommendorClassic} from '@/api/course'
+import {useStudentStore} from '@/stores'
+import { ref, computed, onMounted } from 'vue';
 import CourseItem from '@/components/CourseItem.vue';
 
-const router = useRouter();
-
-console.log(router)
-
+const studentStore=useStudentStore()
 // 当前选中的算法标签页
 const activeAlgorithmTab = ref('basic');
 
@@ -90,82 +90,45 @@ const searchQuery = ref('');
 // 推荐课程数据
 const isCourse=ref(false)
 const courseNum=ref()
-const courses = ref([
-  {
-    title: 'Vue 3 入门教程',
-    description: '学习 Vue 3 的基础知识，掌握核心概念和用法。',
-    id:1
-  },
-  {
-    title: 'Vue 3 高级实战',
-    description: '通过实战项目深入学习 Vue 3 的高级特性。',
-    id:2
-  },
-  {
-    title: 'Vue 3 与 TypeScript',
-    description: '学习如何在 Vue 3 中使用 TypeScript 进行开发。',
-    id:3
-  },
-]);
+const courses = ref([]);
+
+const getCourseContent = async () => {
+  const str=studentStore.plan.interests.split(',')
+  let type
+  str.forEach((item) => {
+    if (item === '前端开发') {
+      type = '前端'
+    } else if (item === '后端开发') {
+      type = '后端'
+    } else if (item === '数据科学') {
+      type = '数据'
+    } else {
+      type = '智能'
+    }
+  })
+  const res = await getRecommendorClassic({type})
+  courses.value=res.data.data.courses
+}
+
 
 // 基础算法集锦数据
-const basicAlgorithms = ref([
-  {
-    title: '快速排序',
-    code: `function quickSort(arr) {
-  if (arr.length <= 1) return arr;
-  const pivot = arr[0];
-  const left = [];
-  const right = [];
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i] < pivot) left.push(arr[i]);
-    else right.push(arr[i]);
-  }
-  return [...quickSort(left), pivot, ...quickSort(right)];
-}`,
-    description: '快速排序是一种分治算法，通过选择一个基准元素将数组分为两部分，然后递归排序。',
-  },
-  {
-    title: '二分查找',
-    code: `function binarySearch(arr, target) {
-  let left = 0;
-  let right = arr.length - 1;
-  while (left <= right) {
-    const mid = Math.floor((left + right) / 2);
-    if (arr[mid] === target) return mid;
-    if (arr[mid] < target) left = mid + 1;
-    else right = mid - 1;
-  }
-  return -1;
-}`,
-    description: '二分查找是一种高效的查找算法，适用于已排序的数组。',
-  },
-]);
+const basicAlgorithms = ref([]);
+
+//获取算法集锦
+const getAlgorithms = async () => {
+  const res = await getAlgorithmService();
+  basicAlgorithms.value = res.data.data.basicalgorithms;
+};
+
 
 // 常见错误集锦数据
-const errorAlgorithms = ref([
-  {
-    title: '未定义的变量',
-    code: `function add(a, b) {
-  return a + b + x; // x 未定义
-}`,
-    reason: '变量 x 未定义，导致运行时错误。',
-    correctCode: `function add(a, b) {
-  const x = 0; // 定义 x
-  return a + b + x;
-}`,
-  },
-  {
-    title: '缺少分号',
-    code: `const a = 1
-const b = 2
-return a + b`,
-    reason: 'JavaScript 中分号是可选的，但在某些情况下会导致解析错误。',
-    correctCode: `const a = 1;
-const b = 2;
-return a + b;`,
-  },
-]);
+const errorAlgorithms = ref([]);
+
+//获取错误集锦
+const getCommonError = async () => {
+  const res = await getCommonErrorService();
+  errorAlgorithms.value = res.data.data.commonerrors;
+};
 
 // 过滤基础算法
 const filteredBasicAlgorithms = computed(() => {
@@ -182,10 +145,16 @@ const filteredErrorAlgorithms = computed(() => {
 });
 
 // 查看课程详情
-const viewCourse = (course) => {
-  courseNum.value=course.id
+const viewCourse = (id) => {
+  courseNum.value=id
   isCourse.value=true
 };
+
+onMounted(() => {
+  getCourseContent()
+  getAlgorithms()
+  getCommonError()
+})
 </script>
 
 <style scoped lang="scss">

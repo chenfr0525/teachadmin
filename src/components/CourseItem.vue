@@ -1,29 +1,47 @@
+<script setup>
+import {getCourseDetail} from '@/api/course'
+import { ref,defineProps,onMounted } from 'vue';
+//加载
+const loading=ref(true)
+//课程Id
+const props = defineProps(['courseId'])
+// 课程数据
+const course = ref({
+    id: 1,
+    name: '',
+    description: '',
+    image_url: '',
+    instructor: {
+      name: '',
+      bio: '',
+      avatar_url: '',
+    },
+  })
+
+// 获取课程详情
+const getCourseContent=async()=>{
+  const res=await getCourseDetail(props.courseId)
+  course.value=res.data.data.course
+}
+
+onMounted(()=>{
+  getCourseContent()
+  loading.value=false
+})
+
+</script>
+
 <template>
-  <div class="course-detail">
+  <div class="course-detail" v-loading="loading">
     <!-- 课程封面 -->
     <div class="course-cover">
-      <img :src="course.image" alt="课程封面" />
+      <img :src="course.image_url" :alt="course.name" />
     </div>
 
     <!-- 课程信息 -->
     <div class="course-info">
-      <h1 class="course-title">{{ course.title }}</h1>
+      <h1 class="course-title">{{ course.name }}</h1>
       <p class="course-description">{{ course.description }}</p>
-    </div>
-
-    <!-- 章节列表 -->
-    <div class="chapter-list">
-      <h2>课程章节</h2>
-      <el-collapse v-model="activeChapter">
-        <el-collapse-item
-          v-for="(chapter, index) in course.chapters"
-          :key="index"
-          :title="`第 ${index + 1} 章：${chapter.title}`"
-          :name="index"
-        >
-          <p>{{ chapter.content }}</p>
-        </el-collapse-item>
-      </el-collapse>
     </div>
 
     <!-- 讲师信息 -->
@@ -31,7 +49,7 @@
       <h2>讲师介绍</h2>
       <el-card>
         <div class="instructor-details">
-          <img :src="course.instructor.avatar" alt="讲师头像" class="instructor-avatar" />
+          <img :src="course.instructor.avatar_url" :alt="course.instructor.name" class="instructor-avatar" />
           <div class="instructor-text">
             <h3>{{ course.instructor.name }}</h3>
             <p>{{ course.instructor.bio }}</p>
@@ -41,41 +59,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import { ref, computed,defineProps  } from 'vue';
-
-const props = defineProps(['courseId'])
-
-// 模拟课程数据
-const courses = [
-  {
-    id: 1,
-    title: '数据结构与算法',
-    description: '深入学习数据结构与算法的核心知识。',
-    image: 'https://via.placeholder.com/800x400',
-    chapters: [
-      { title: '数组与链表', content: '介绍数组和链表的基本概念和操作。' },
-      { title: '栈与队列', content: '学习栈和队列的实现和应用场景。' },
-      { title: '树与图', content: '深入理解树和图的结构及其算法。' },
-    ],
-    instructor: {
-      name: '张老师',
-      bio: '资深算法工程师，拥有 10 年教学经验。',
-      avatar: 'https://via.placeholder.com/100x100',
-    },
-  }
-  // 其他课程数据...
-];
-
-// 查找当前课程
-const course = computed(() => {
-  return courses.find((c) => c.id === props.courseId);
-});
-
-// 当前展开的章节
-const activeChapter = ref(0);
-</script>
 
 <style scoped lang="scss">
 .course-detail {

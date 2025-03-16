@@ -1,32 +1,36 @@
 <script setup>
-import { Management, CaretBottom, User,Crop,EditPen,SwitchButton,UserFilled } from '@element-plus/icons-vue'
-import { ref } from 'vue'
+import {useStudentStore} from '@/stores'
+import { Management, CaretBottom, User, Crop, EditPen, SwitchButton, UserFilled } from '@element-plus/icons-vue'
+import { onMounted,ref } from 'vue'
 import { useRouter } from 'vue-router'
-const router=useRouter()
 
-const item = {
-  date: '2016-05-02',
-  name: 'Tom',
-  address: 'No. 189, Grove St, Los Angeles',
-}
+const username = ref('')
+const router = useRouter()
+const studentStore=useStudentStore()
+
+onMounted(() => {
+  studentStore.getUser()
+  username.value = studentStore.user.username
+})
+
 
 // 下拉菜单
-const handleCommand = async (key) =>{
-  if(key === 'logout'){
+const handleCommand = async (key) => {
+  if (key === 'logout') {
     //退出操作
-    await ElMessageBox.confirm('你确认要退出吗？','温馨提示',{
+    await ElMessageBox.confirm('你确认要退出吗？', '温馨提示', {
       type: 'warning',
       confirmButtonText: '确认',
       cancelButtonText: '取消'
     })
-    // userStore.removeToken()
-    // userStore.setUser({})
-    // router.push('/login')
-  }else {
+    studentStore.removeToken()
+    studentStore.setUser({})
+    router.push('/login')
+  } else {
     //跳转操作
     router.push(`/user/${key}`)
   }
-} 
+}
 
 </script>
 
@@ -41,7 +45,7 @@ const handleCommand = async (key) =>{
       </el-space>
 
       <el-space :size="25">
-        <div class="username">学生：<strong>Candy</strong></div>
+        <div class="username">学生：<strong>{{username}}</strong></div>
         <!-- 下拉菜单 -->
         <el-dropdown placement="bottom-end" @command="handleCommand">
           <!-- 展示给用户，默认看到的 -->
@@ -66,7 +70,8 @@ const handleCommand = async (key) =>{
 
     <el-container>
       <el-aside width="180px">
-        <el-menu text-color="#fff" active-text-color="#ffcc00" background-color="#5e8d83" :default-active="$route.path" router>
+        <el-menu text-color="#fff" active-text-color="#ffcc00" background-color="#5e8d83" :default-active="$route.path"
+          router>
           <el-menu-item index="/user/home">
             <el-icon>
               <Management />

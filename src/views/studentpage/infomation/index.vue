@@ -1,16 +1,14 @@
 <script setup>
+import {getInfoService,updateInfoService,deleteInfoService} from '@/api/information'
 import { ref, computed } from 'vue';
 import { ArrowLeft, ArrowRight, ChatLineRound } from '@element-plus/icons-vue';
-
-// 模拟信息数据
-const messages = ref([
-  { id: 1, text: '您有一条新的系统通知', read: false, details: '系统将于今晚 10 点进行维护，请提前保存数据。', time: '2023-10-01 09:00' },
-  { id: 2, text: '您的订单已发货', read: false, details: '您的订单 #123456 已发货，预计 3 天内送达。', time: '2023-10-02 14:30' },
-  { id: 3, text: '您的好友发来一条消息', read: false, details: '好友小明发来一条消息：“晚上一起吃饭吗？”', time: '2023-10-03 18:15' },
-  { id: 4, text: '您有一条未读邮件', read: false, details: '您收到一封来自 support@example.com 的邮件。', time: '2023-10-04 11:45' },
-  { id: 5, text: '您的账户已成功注册', read: true, details: '您的账户已成功注册，欢迎使用我们的服务。', time: '2023-10-05 08:00' },
-  { id: 6, text: '您的订阅已续费', read: true, details: '您的订阅已成功续费，有效期至 2024 年 12 月 31 日。', time: '2023-10-06 16:20' },
-]);
+const info = ref([])
+const getData=async()=>{
+  const res=await getInfoService()
+  //信息
+  info.value = res.data.data.informationstatuses
+}
+getData()
 
 // 左侧菜单栏是否折叠
 const isCollapsed = ref(false);
@@ -20,7 +18,9 @@ const selectedMessage = ref(null);
 
 // 未读信息数量
 const unreadCount = computed(() => {
-  return messages.value.filter((message) => !message.read).length;
+  return info.value.reduce((sum, item) => {
+    return sum + (item.status===1?0:1)
+  }, 0)
 });
 
 // 格式化时间
@@ -29,25 +29,30 @@ const formatTime = (time) => {
 };
 
 // 标记单条信息为已读
-const markAsRead = (id) => {
-  const message = messages.value.find((msg) => msg.id === id);
-  if (message) {
-    message.read = true;
-  }
+const markAsRead = async (id) => {
+  const res =await updateInfoService(id)
+  getData()
 };
 
 // 一键阅读所有信息
 const markAllAsRead = () => {
-  messages.value.forEach((message) => {
-    if (!message.read) {
-      message.read = true;
+  info.value.forEach((message) => {
+    
+    console.log(message);
+    if (!message.status) {
+      markAsRead(message.id);
     }
   });
 };
 
 // 清空所有已读信息
-const clearAllRead = () => {
-  messages.value = messages.value.filter((message) => !message.read);
+const clearAllRead = async() => {
+  info.value.forEach(async (message) => {
+    if (message.status) {
+      await deleteInfoService(message.id)
+    }
+  })
+  getData()
 };
 
 // 选择信息
@@ -92,16 +97,16 @@ const toggleCollapse = () => {
         <div v-if="!isCollapsed">
           <!-- 信息列表 -->
           <el-card
-            v-for="message in messages"
+            v-for="message in info"
             :key="message.id"
             class="message-card"
             @click="selectMessage(message)"
           >
             <div class="message-content">
-              <span class="message-text">{{ message.text }}</span>
-              <span class="message-time">{{ formatTime(message.time) }}</span>
+              <span class="message-text">{{ message.information.title }}</span>
+              <span class="message-time">{{ formatTime(message.createdAt) }}</span>
               <!-- 未读信息右上角显示红色小点 -->
-              <span v-if="!message.read" class="unread-dot"></span>
+              <span v-if="!message.status" class="unread-dot"></span>
             </div>
           </el-card>
         </div>
@@ -110,10 +115,10 @@ const toggleCollapse = () => {
       <!-- 右侧信息详情 -->
       <el-main class="message-detail">
         <div v-if="selectedMessage" class="detail-content">
-          <h2 class="detail-title">{{ selectedMessage.text }}</h2>
-          <p class="detail-time">{{ formatTime(selectedMessage.time) }}</p>
+          <h2 class="detail-title">{{ selectedMessage.information.title}}</h2>
+          <p class="detail-time">{{ formatTime(selectedMessage.createdAt) }}</p>
           <p class="detail-text">
-            {{ selectedMessage.details || '暂无详细信息' }}
+            {{ selectedMessage.information.content || '暂无详细信息' }}
           </p>
         </div>
         <div v-else class="empty-state">

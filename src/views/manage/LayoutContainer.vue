@@ -93,12 +93,6 @@ const handleCommand = async (key) =>{
             </el-icon>
             <span>通知公告</span>
           </el-menu-item>
-          <el-menu-item index="/system/log">
-            <el-icon>
-              <Management />
-            </el-icon>
-            <span>系统日志</span>
-          </el-menu-item>
           <!-- 多级菜单的标题 -具名插槽 title-->
           <el-sub-menu index="/myinfo">
             <template #title>

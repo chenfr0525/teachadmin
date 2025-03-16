@@ -18,8 +18,8 @@
       <h1 class="main-title">个人资料</h1>
       <!-- 个人资料信息 -->
       <el-descriptions :column="1" border>
-        <el-descriptions-item label="用户名">{{ student.name }}</el-descriptions-item>
-        <el-descriptions-item label="性别">{{ student.gender }}</el-descriptions-item>
+        <el-descriptions-item label="用户名">{{ student.username }}</el-descriptions-item>
+        <el-descriptions-item label="性别">{{ student.gender===1?'男':'女' }}</el-descriptions-item>
         <el-descriptions-item label="出生日期">{{ student.birthdate }}</el-descriptions-item>
         <el-descriptions-item label="电话">{{ student.phone }}</el-descriptions-item>
         <el-descriptions-item label="邮箱">{{ student.email }}</el-descriptions-item>
@@ -31,20 +31,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { studentGetInfoService } from '@/api/student'
+import { ref,onMounted } from 'vue';
 
 // 模拟学生数据
-const student = ref({
-  name: '张三',
-  gender: '男',
-  birthdate: '2000-01-01',
-  phone: '13800138000',
-  email: 'zhangsan@example.com',
-  address: '北京市海淀区',
-  school: '清华大学',
-  bio: '热爱编程，喜欢挑战新技术，积极参与开源项目。',
-  avatar: 'https://via.placeholder.com/120',
-});
+const student = ref({});
+
+//获取学生信息
+const getStudentData=async()=>{
+  const res = await studentGetInfoService()
+  student.value=res.data.data.student
+}
+onMounted(() => {
+  getStudentData()
+})
 </script>
 
 <style scoped lang="scss">

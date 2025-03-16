@@ -1,5 +1,21 @@
 <script setup>
-import { ref, computed } from 'vue';
+import {getCommonErrorService} from '@/api/codelearn'
+import { ref, computed,onMounted } from 'vue';
+
+// 常见错误集锦数据
+const errors = ref([]);
+
+
+
+//获取算法集锦
+const getCommonError = async () => {
+  const res = await getCommonErrorService();
+  errors.value = res.data.data.commonerrors;
+};
+
+onMounted(() => {
+  getCommonError()
+})
 
 // 当前展开的错误项
 const activeErrors = ref([]);
@@ -10,33 +26,6 @@ const searchQuery = ref('');
 // 分页
 const currentPage = ref(1);
 const pageSize = 5;
-
-// 常见错误集锦数据
-const errors = ref([
-  {
-    title: '未定义的变量',
-    code: `function add(a, b) {
-  return a + b + x; // x 未定义
-}`,
-    reason: '变量 x 未定义，导致运行时错误。',
-    correctCode: `function add(a, b) {
-  const x = 0; // 定义 x
-  return a + b + x;
-}`,
-  },
-  {
-    title: '123',
-    code: `function add(a, b) {
-  return a + b + x; // x 未定义
-}`,
-    reason: '变量 x 未定义，导致运行时错误。',
-    correctCode: `function add(a, b) {
-  const x = 0; // 定义 x
-  return a + b + x;
-}`,
-  },
-  // 其他错误数据...
-]);
 
 // 过滤错误
 const filteredErrors = computed(() => {
@@ -77,7 +66,7 @@ const handleSearch = () => {
           <h3>错误原因：</h3>
           <p>{{ error.reason }}</p>
           <h3>正确写法：</h3>
-          <pre>{{ error.correctCode }}</pre>
+          <pre>{{ error.correct_code }}</pre>
         </div>
       </el-collapse-item>
     </el-collapse>
@@ -105,7 +94,7 @@ const handleSearch = () => {
 
     .error-title {
       padding-left: 20px;
-      font-size: 20px;
+      font-size: 17px;
       color: #333;
     }
 

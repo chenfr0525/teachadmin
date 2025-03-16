@@ -5,3 +5,4 @@ const pinia = createPinia().use(persist)
 export default pinia
 
 export * from './modules/student'
+export * from './modules/admin'
