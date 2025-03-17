@@ -1,16 +1,18 @@
 <script setup>
+import {useAdminStore} from '@/stores'
 import { Management, CaretBottom, User,Crop,EditPen,SwitchButton,UserFilled } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import {ref,onMounted} from 'vue'
 
+const username=ref('')
 const router=useRouter()
+const adminStore=useAdminStore()
 
-const item = {
-  date: '2016-05-02',
-  name: 'Tom',
-  address: 'No. 189, Grove St, Los Angeles',
-}
+onMounted(() => {
+  adminStore.getUser()
+  username.value=adminStore.user
+})
 
 // 下拉菜单
 const handleCommand = async (key) =>{
@@ -21,9 +23,9 @@ const handleCommand = async (key) =>{
       confirmButtonText: '确认',
       cancelButtonText: '取消'
     })
-    // userStore.removeToken()
-    // userStore.setUser({})
-    // router.push('/login')
+    adminStore.removeToken()
+    adminStore.setUser({})
+    router.push('/login')
   }else {
     //跳转操作
     router.push(`/myinfo/${key}`)
@@ -43,7 +45,7 @@ const handleCommand = async (key) =>{
       </el-space>
 
       <el-space :size="25">
-        <div class="username">管理员：<strong>user</strong></div>
+        <div class="username">管理员：<strong>{{ username }}</strong></div>
         <!-- 下拉菜单 -->
         <el-dropdown placement="bottom-end" @command="handleCommand">
           <!-- 展示给用户，默认看到的 -->

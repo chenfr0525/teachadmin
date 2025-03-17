@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@/utils/requestAdmin'
 
 //注册接口
 export const adminRegisterService = ({ username, password, gender, phone }) => {
@@ -9,3 +9,6 @@ export const adminRegisterService = ({ username, password, gender, phone }) => {
 export const adminLoginService = ({ username, password }) => {
   return request.post('/admin/auth/login', { username, password })
 }
+
+//获取管理员基本信息
+export const adminGetInfoService = () => request.get('/admin/me')

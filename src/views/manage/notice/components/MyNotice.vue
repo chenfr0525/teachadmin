@@ -10,7 +10,7 @@ const pageData = ref([]);
 const loading = ref(false);
 const total = ref(0);
 
-const queryParams = ref<NoticePageQuery>({
+const queryParams = ref({
   pageNum: 1,
   pageSize: 10,
 });

@@ -5,6 +5,7 @@ import { ref } from 'vue'
 
 //用户模块token setToken removeToken
 export const useStudentStore = defineStore('big-student', () => {
+  const role=ref(0)
   //token
   const token = ref('')
   const setToken = (newToken) => {
@@ -39,6 +40,7 @@ export const useStudentStore = defineStore('big-student', () => {
     plan.value = obj
   }
   return {
+    role,
     token,
     setToken,
     removeToken,
