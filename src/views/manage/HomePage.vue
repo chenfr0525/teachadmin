@@ -3,7 +3,7 @@ import { adminHomeGetService } from '@/api/adminhome'
 import { useAdminStore } from '@/stores'
 import { ref, computed, onMounted } from "vue";
 import {formatDate} from '@/utils/index'
-import { User, ChatLineRound, CaretTop } from '@element-plus/icons-vue'
+import { User, ChatLineRound, CaretTop,CaretBottom } from '@element-plus/icons-vue'
 //引入echat
 import * as echarts from 'echarts';
 
@@ -37,6 +37,10 @@ const studentCount = ref({
   total: 0,
   todayOnline: 0,
   yesterdayOnline: 0
+})
+//学生今日与昨日增长率
+const growthCount=computed(()=>{
+  return studentCount.value.yesterdayOnline===0? 0:((studentCount.value.todayOnline-studentCount.value.yesterdayOnline)/studentCount.value.yesterdayOnline*100).toFixed(2)
 })
 //信息数量
 const infoCount = ref({
@@ -151,10 +155,13 @@ onMounted(() => {
                     <div class="statistic-footer">
                       <div class="footer-item">
                         <span>比昨天</span>
-                        <span class="green">
-                          {{ studentCount.yesterdayOnline===0? 0:((studentCount.todayOnline-studentCount.yesterdayOnline)/studentCount.yesterdayOnline*100).toFixed(2) }}%
-                          <el-icon>
+                        <span :class="growthCount>0?'green':'red'">
+                          {{ growthCount }}%
+                          <el-icon v-if="growthCount>0">
                             <CaretTop />
+                          </el-icon>
+                          <el-icon v-else>
+                            <CaretBottom />
                           </el-icon>
                         </span>
                       </div>

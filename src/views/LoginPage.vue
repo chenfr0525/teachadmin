@@ -54,11 +54,9 @@ const rules = {
 const register = async () => {
   await form.value.validate()
   if (formModel.value.role === 'student') {
-    const res = await studentRegisterService(formModel.value)
+    await studentRegisterService(formModel.value)
   } else if (formModel.value.role === 'admin') {
-
-    const res = await adminRegisterService(formModel.value)
-    console.log(res);
+    await adminRegisterService(formModel.value)
   }
 
   ElMessage.success('注册成功')

@@ -6,7 +6,7 @@ import { studentGetInfoService,studentUpdateInfoService } from '@/api/student'
 
 const studentStore=useStudentStore()
 
-const formModel=ref()
+const formModel=ref({})
 
 const rules = {
   username: [
@@ -52,7 +52,7 @@ const handleAvatarSuccess = (response, file) => {
 
 //修改简介
 const updateBio=async()=>{
-const res=await studentUpdateInfoService(student.value.id,{bio:introduce.value})
+await studentUpdateInfoService(student.value.id,{bio:introduce.value})
 studentStore.getUser()
 getStudentData()
 isEditIntro.value = true

@@ -1,5 +1,20 @@
 <script setup>
-import { Iphone, Location, OfficeBuilding, Tickets, User } from '@element-plus/icons-vue'
+import {adminGetInfoService} from '@/api/admin.js'
+import { Iphone, Location, OfficeBuilding,User } from '@element-plus/icons-vue'
+import {ref,onMounted} from 'vue'
+//管理员信息
+const admin=ref({})
+
+//获取管理员信息
+const getAdminData=async()=>{
+  const res=await adminGetInfoService()
+  admin.value=res.data.data.admin
+  console.log(admin.value)
+}
+
+onMounted(()=>{
+  getAdminData()
+})
 
 </script>
 
@@ -11,14 +26,14 @@ import { Iphone, Location, OfficeBuilding, Tickets, User } from '@element-plus/i
           <div class="info-one">
             <el-avatar :size="200" src="../../../assets/1.jpg" />
             <div class="intru">
-              <h1>个人简介</h1>
-              <p>这人很懒，还没有些个人介绍！</p>
+              <h1>个人职责</h1>
+              <p>{{admin.bio||'这人还没有职责！'}}</p>
             </div>
           </div>
         </el-card>
       </el-aside>
       <el-main>
-        <el-descriptions title="个人信息" :column="2" size="large" border>
+        <el-descriptions title="个人信息" :column="1" size="large" border>
           <el-descriptions-item>
             <template #label>
               <div class="cell-item">
@@ -28,7 +43,7 @@ import { Iphone, Location, OfficeBuilding, Tickets, User } from '@element-plus/i
                 用户名
               </div>
             </template>
-            user
+            {{admin.username}}
           </el-descriptions-item>
           <el-descriptions-item>
             <template #label>
@@ -39,7 +54,7 @@ import { Iphone, Location, OfficeBuilding, Tickets, User } from '@element-plus/i
                 电话
               </div>
             </template>
-            18100000000
+            {{admin.phone}}
           </el-descriptions-item>
           <el-descriptions-item>
             <template #label>
@@ -50,18 +65,7 @@ import { Iphone, Location, OfficeBuilding, Tickets, User } from '@element-plus/i
                 地址
               </div>
             </template>
-            北京
-          </el-descriptions-item>
-          <el-descriptions-item>
-            <template #label>
-              <div class="cell-item">
-                <el-icon>
-                  <tickets />
-                </el-icon>
-                标签
-              </div>
-            </template>
-            <el-tag size="small">School</el-tag>
+            {{admin.address}}
           </el-descriptions-item>
           <el-descriptions-item>
             <template #label>
@@ -72,7 +76,7 @@ import { Iphone, Location, OfficeBuilding, Tickets, User } from '@element-plus/i
                 家庭住址
               </div>
             </template>
-            No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province
+            {{admin.home_address}}
           </el-descriptions-item>
         </el-descriptions>
       </el-main>

@@ -1,9 +1,62 @@
 <script setup>
-import { ref } from 'vue'
-import { Plus,Iphone, Location,Tickets, User,Upload } from '@element-plus/icons-vue'
-
+import {useAdminStore} from '@/stores'
+import {adminGetInfoService,adminUpdateInfoService} from '@/api/admin.js'
+import { ref,onMounted } from 'vue'
+import { Plus,Iphone, Location,User,Upload } from '@element-plus/icons-vue'
+const adminStore=useAdminStore()
+const formModel=ref({})
+const rules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { min: 2, max: 10, message: '用户名必须是 2-10位 的字符', trigger: 'blur' }
+  ],
+  phone: [
+    { required: true, message: '请输入电话号码', trigger: 'blur', },
+    { len: 11, message: '电话号码必须是 11 位数字', trigger: 'blur', },
+    { pattern: /^[0-9]+$/, message: '电话号码必须由数字组成', trigger: 'blur', },
+  ]
+}
+//管理员信息
+const admin=ref({})
+//表单数据
+const form=ref({})
+//个人简介
 const isEditIntro = ref(true)
 const introduce = ref('')
+//获取管理员信息
+const getAdminData=async()=>{
+  const res=await adminGetInfoService()
+  admin.value=res.data.data.admin
+  form.value={...admin.value}
+  introduce.value=admin.value.bio
+}
+//修改个人简介
+const updateBio=async()=>{
+const res=await adminUpdateInfoService(admin.value.id,{bio:introduce.value})
+adminStore.getUser()
+getAdminData()
+isEditIntro.value = true
+ElMessage.success('保存成功');
+}
+// 保存修改
+const handleSave = async() => {
+  await formModel.value.validate()
+  const {username,gender,address,home_address,phone}=form.value
+  await adminUpdateInfoService(admin.value.id,{username,gender,address,home_address,phone})
+  adminStore.getUser()
+getAdminData()
+  ElMessage.success('保存成功');
+};
+
+// 取消修改
+const handleCancel = () => {
+  form.value = { ...admin.value };
+  ElMessage.info('已取消修改');
+};
+
+onMounted(() => {
+  getAdminData()
+})
 </script>
 
 <template>
@@ -25,15 +78,15 @@ const introduce = ref('')
               <el-button @click="onUpdateAvatar" type="success" :icon="Upload" size>上传头像</el-button>
             </div>
             <div class="intru">
-              <h1>个人简介</h1>
-              <p v-if="isEditIntro">这人很懒，还没有写个人介绍！</p>
+              <h1>个人职责</h1>
+              <p v-if="isEditIntro">{{admin.bio||'这人还没有职责！'}}</p>
               <el-input v-else v-model="introduce" maxlength="200" :rows="8" style="width: 240px;;" placeholder="请输入信息"
                 show-word-limit type="textarea" />
               <el-button style="margin: 20px 45px;" v-if="isEditIntro" type="primary"
-                @click="isEditIntro = false">编辑简介</el-button>
+                @click="isEditIntro = false">编辑职责</el-button>
               <div v-else class="introButton" style="margin-top: 20px;display: flex;justify-content: center;">
                 <el-button type="primary" @click="isEditIntro = true">取消</el-button>
-                <el-button type="primary">确定</el-button>
+                <el-button type="primary" @click="updateBio">确定</el-button>
               </div>
             </div>
           </div>
@@ -47,25 +100,28 @@ const introduce = ref('')
         </el-row>
         <el-row style="margin-top: 40px;">
           <el-col :offset="2" :span="22">
-            <el-form size="large">
-              <el-form-item prop="username">
-                <el-input :prefix-icon="User" placeholder="请输入用户名"></el-input>
+            <el-form ref="formModel" :model="form" :rules="rules" size="large" label-width="auto">
+              <el-form-item label="用户名" prop="username">
+                <el-input v-model="form.username" :prefix-icon="User" placeholder="请输入用户名"></el-input>
               </el-form-item>
-              <el-form-item prop="phone">
-                <el-input :prefix-icon="Iphone" placeholder="请输入电话号码"></el-input>
+              <el-form-item label="性别">
+          <el-radio-group v-model="form.gender">
+            <el-radio :value="1" size="large">男</el-radio>
+            <el-radio :value="0" size="large">女</el-radio>
+          </el-radio-group>
+        </el-form-item>
+              <el-form-item label="电话号码" prop="phone">
+                <el-input v-model="form.phone" :prefix-icon="Iphone" placeholder="请输入电话号码"></el-input>
               </el-form-item>
-              <el-form-item prop="address">
-                <el-input :prefix-icon="Location" placeholder="请输入地址"></el-input>
+              <el-form-item label="地址" prop="address">
+                <el-input v-model="form.address" :prefix-icon="Location" placeholder="请输入地址"></el-input>
               </el-form-item>
-              <el-form-item prop="remark">
-                <el-input :prefix-icon="Tickets" placeholder="请输入标签"></el-input>
-              </el-form-item>
-              <el-form-item prop="home">
-                <el-input :prefix-icon="Location" placeholder="请输入家庭地址"></el-input>
+              <el-form-item label="家庭地址" prop="home_address">
+                <el-input v-model="form.home_address" :prefix-icon="Location" placeholder="请输入家庭地址"></el-input>
               </el-form-item>
               <el-form-item class="flex-button">
-                <el-button type="primary">恢复原样</el-button>
-                <el-button type="success">提交修改</el-button>
+                <el-button type="primary" @click="handleCancel">恢复原样</el-button>
+                <el-button type="success" @click="handleSave">提交修改</el-button>
               </el-form-item>
             </el-form>
           </el-col>

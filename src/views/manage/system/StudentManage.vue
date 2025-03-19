@@ -1,97 +1,88 @@
 <script setup>
+import { studentGetAllService,studentGetOneService,studentDeleteService } from '@/api/adminhome'
+import {studentUpdateInfoService,studentRegisterService} from '@/api/student'
 import { ref, onMounted } from 'vue'
-// import UserAPI, { UserForm, UserPageQuery, UserPageVO } from "@/api/system/user";
 import { Refresh, Plus, Delete, RefreshLeft, Search, Edit } from '@element-plus/icons-vue'
+import { formatDate } from '@/utils/index'
 
-// import DeptAPI from "@/api/system/dept";
-// import RoleAPI from "@/api/system/role";
-
+//头部查询表
 const queryFormRef = ref();
+//弹出的表单
 const userFormRef = ref();
 
 const queryParams = ref({
-  pageNum: 1,
+  currentPage: 1,
   pageSize: 10,
-  deptId: '',
-  createTime: "",
-  keywords: '',
+  createdAt: "",
+  username:'',
+  phone:'',
   status: ''
 });
 
+//查询数据库所得的数据
 const pageData = ref();
+//数据总数
 const total = ref(0);
+//加载状态
 const loading = ref(false);
 
-//reactive
+//设置弹出层状态
 const dialog = ref({
   visible: false,
   title: "新增用户",
 });
 
-//reactive
+//弹出层表单数据
 const formData = ref({
   status: 1,
-  username: '',
   id: '',
-  nickname: '',
-  deptId: '',
-  gender: '',
-  roleIds: '',
-  mobile: '',
-  email: ''
+  username: '',
+  gender: 1,
+  phone: '',
+  email: '',
+  address: '',
+  school: '',
+  createdAt: ''
 });
 
-//reactive
-const rules = ref({
-  username: [{ required: true, message: "用户名不能为空", trigger: "blur" }],
-  nickname: [{ required: true, message: "用户昵称不能为空", trigger: "blur" }],
-  deptId: [{ required: true, message: "所属部门不能为空", trigger: "blur" }],
-  roleIds: [{ required: true, message: "用户角色不能为空", trigger: "blur" }],
+//设置规则
+const rules = {
+  username: [
+    { required: true, message: "用户名不能为空", trigger: "blur" },
+    { min: 2, max: 10, message: '用户名必须是 2-10位 的字符', trigger: 'blur' }
+  ],
   email: [
-    {
-      pattern: /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/,
-      message: "请输入正确的邮箱地址",
-      trigger: "blur",
-    },
+    { pattern: /\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}/, message: "请输入正确的邮箱地址", trigger: "blur", },
   ],
-  mobile: [
-    {
-      pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/,
-      message: "请输入正确的手机号码",
-      trigger: "blur",
-    },
+  phone: [
+    { required: true, message: '请输入电话号码', trigger: 'blur', },
+    { pattern: /^1[3|4|5|6|7|8|9][0-9]\d{8}$/, message: "请输入正确的手机号码", trigger: "blur", },
   ],
-});
+}
 
 // 选中的用户ID
 const selectIds = ref([]);
-// 部门下拉数据源
-const deptOptions = ref();
-// 角色下拉数据源
-const roleOptions = ref();
-// 导入弹窗显示状态
-const importDialogVisible = ref(false);
 
 // 查询
-function handleQuery() {
-  // loading.value = true;
-  // UserAPI.getPage(queryParams)
-  //   .then((data) => {
-  //     pageData.value = data.list;
-  //     total.value = data.total;
-  //   })
-  //   .finally(() => {
-  //     loading.value = false;
-  //   });
+const handleQuery = () => {
+  loading.value = true;
+  studentGetAllService(queryParams.value)
+    .then((data) => {
+      pageData.value = data.data.data.students
+      total.value = data.data.data.pagination.total
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 }
+
 
 // 重置查询
 function handleResetQuery() {
   queryFormRef.value.resetFields();
-  queryParams.value.pageNum = 1;
-  queryParams.value.deptId = undefined;
-  queryParams.value.createTime = undefined;
-  // handleQuery();
+  queryParams.value.currentPage = 1;
+  queryParams.value.createdAt = undefined;
+  handleQuery();
 }
 
 // 选中项发生变化
@@ -110,9 +101,10 @@ function hancleResetPassword(row) {
         ElMessage.warning("密码至少需要6位字符，请重新输入");
         return false;
       }
-      // UserAPI.resetPassword(row.id, value).then(() => {
-      //   ElMessage.success("密码重置成功，新密码是：" + value);
-      // });
+      studentUpdateInfoService(row.id, {password:value}).then((res) => {
+        console.log(res.data)
+        ElMessage.success("密码重置成功，新密码是：" + value);
+      });
     },
     () => {
       ElMessage.info("已取消重置密码");
@@ -126,20 +118,17 @@ function hancleResetPassword(row) {
  * @param id 用户ID
  */
 async function handleOpenDialog(id) {
-  dialog.value.visible = true;
-  // 加载角色下拉数据源
-  // roleOptions.value = await RoleAPI.getOptions();
-  // 加载部门下拉数据源
-  // deptOptions.value = await DeptAPI.getOptions();
 
   if (id) {
     dialog.value.title = "修改用户";
-    // UserAPI.getFormData(id).then((data) => {
-    //   Object.assign(formData, { ...data });
-    // });
+    studentGetOneService(id).then((res) => {
+      let data=res.data.data.student
+      Object.assign(formData.value, { ...data });
+    });
   } else {
     dialog.value.title = "新增用户";
   }
+  dialog.value.visible = true;
 }
 
 // 关闭弹窗
@@ -152,33 +141,35 @@ function handleCloseDialog() {
   formData.value.status = 1;
 }
 
-// 提交用户表单（防抖）
-const handleSubmit = () => { }//报错先定义一下
-// const handleSubmit = useDebounceFn(() => {
-//   userFormRef.value.validate((valid: boolean) => {
-//     if (valid) {
-//       const userId = formData.value.id;
-//       loading.value = true;
-//       if (userId) {
-//         UserAPI.update(userId, formData)
-//           .then(() => {
-//             ElMessage.success("修改用户成功");
-//             handleCloseDialog();
-//             handleResetQuery();
-//           })
-//           .finally(() => (loading.value = false));
-//       } else {
-//         UserAPI.add(formData)
-//           .then(() => {
-//             ElMessage.success("新增用户成功");
-//             handleCloseDialog();
-//             handleResetQuery();
-//           })
-//           .finally(() => (loading.value = false));
-//       }
-//     }
-//  });
-// }, 1000);
+// 提交用户表单
+const handleSubmit =() => {
+  userFormRef.value.validate((valid) => {
+    if (valid) {
+      const userId = formData.value.id;
+      loading.value = true;
+      if (userId) {
+        const {username,gender,phone,email,address,school}=formData.value
+        studentUpdateInfoService(userId, {username,gender,phone,email,address,school})
+          .then(() => {
+            ElMessage.success("修改用户成功");
+            handleCloseDialog();
+            handleResetQuery();
+          })
+          .finally(() => (loading.value = false));
+      } else {
+        //新增用户密码初始值为123456
+        formData.value.password='123456'
+        studentRegisterService(formData.value)
+          .then(() => {
+            ElMessage.success("新增用户成功");
+            handleCloseDialog();
+            handleResetQuery();
+          })
+          .finally(() => (loading.value = false));
+      }
+    }
+ })
+}
 
 /**
  * 删除用户
@@ -199,12 +190,13 @@ const handleDelete = (id) => {
   }).then(
     function () {
       loading.value = true;
-      // UserAPI.deleteByIds(userIds)
-      //   .then(() => {
-      //     ElMessage.success("删除成功");
-      //     handleResetQuery();
-      //   })
-      //   .finally(() => (loading.value = false));
+      studentDeleteService(userIds)
+        .then(() => {
+          ElMessage.success("删除成功")
+          handleResetQuery()
+          handleQuery()
+        })
+        .finally(() => (loading.value = false))
     },
     function () {
       ElMessage.info("已取消删除");
@@ -212,36 +204,8 @@ const handleDelete = (id) => {
   );
 }
 
-// 打开导入弹窗
-const handleOpenImportDialog = () => {
-  importDialogVisible.value = true;
-}
-
-// 导出用户
-// const handleExport=()=> {
-//   UserAPI.export(queryParams).then((response) => {
-//     const fileData = response.data;
-//     const fileName = decodeURI(response.headers["content-disposition"].split(";")[1].split("=")[1]);
-//     const fileType =
-//       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8";
-
-//     const blob = new Blob([fileData], { type: fileType });
-//     const downloadUrl = window.URL.createObjectURL(blob);
-
-//     const downloadLink = document.createElement("a");
-//     downloadLink.href = downloadUrl;
-//     downloadLink.download = fileName;
-
-//     document.body.appendChild(downloadLink);
-//     downloadLink.click();
-
-//     document.body.removeChild(downloadLink);
-//     window.URL.revokeObjectURL(downloadUrl);
-//   });
-// }
-
 onMounted(() => {
-  // handleQuery();
+  handleQuery();
 });
 </script>
 
@@ -253,20 +217,24 @@ onMounted(() => {
         <el-col>
           <div class="search-bar">
             <el-form ref="queryFormRef" :model="queryParams" :inline="true">
-              <el-form-item label="关键字" prop="keywords">
-                <el-input v-model="queryParams.keywords" placeholder="用户名/昵称/手机号" clearable style="width: 200px"
+              <el-form-item label="用户名" prop="username">
+                <el-input v-model="queryParams.username" placeholder="用户名" clearable style="width: 100px"
+                  @keyup.enter="handleQuery" />
+              </el-form-item>
+              <el-form-item label="电话号码" prop="phone">
+                <el-input v-model="queryParams.phone" placeholder="手机号" clearable style="width: 150px"
                   @keyup.enter="handleQuery" />
               </el-form-item>
 
               <el-form-item label="状态" prop="status">
-                <el-select v-model="queryParams.status" placeholder="全部" clearable class="!w-[100px]">
+                <el-select v-model="queryParams.status" placeholder="全部" clearable style="width: 80px">
                   <el-option label="正常" :value="1" />
                   <el-option label="禁用" :value="0" />
                 </el-select>
               </el-form-item>
 
               <el-form-item label="创建时间">
-                <el-date-picker v-model="queryParams.createTime" :editable="false" class="!w-[240px]" type="daterange"
+                <el-date-picker v-model="queryParams.createdAt" :editable="false" class="!w-[240px]" type="daterange"
                   range-separator="~" start-placeholder="开始时间" end-placeholder="截止时间" value-format="YYYY-MM-DD" />
               </el-form-item>
 
@@ -280,10 +248,10 @@ onMounted(() => {
           <el-card shadow="never">
             <div class="flex-x-between mb-10px">
               <div>
-                <el-button v-hasPerm="['sys:user:add']" type="success" :icon="Plus" @click="handleOpenDialog()">
+                <el-button type="success" :icon="Plus" @click="handleOpenDialog()">
                   新增
                 </el-button>
-                <el-button v-hasPerm="'sys:user:delete'" type="danger" :icon="Delete" :disabled="selectIds.length === 0"
+                <el-button type="danger" :icon="Delete" :disabled="selectIds.length === 0"
                   @click="handleDelete()">
                   删除
                 </el-button>
@@ -293,16 +261,13 @@ onMounted(() => {
             <el-table v-loading="loading" :data="pageData" @selection-change="handleSelectionChange">
               <el-table-column type="selection" width="50" align="center" />
               <el-table-column label="用户名" prop="username" />
-              <el-table-column label="昵称" width="150" align="center" prop="nickname" />
               <el-table-column label="性别" width="100" align="center">
                 <template #default="scope">
-                  <!-- 性别字典翻译 -->
-                  <DictLabel v-model="scope.row.gender" code="gender" />
+                  {{ scope.row.gender === 1 ? '男' : '女' }}
                 </template>
               </el-table-column>
-              <el-table-column label="部门" width="120" align="center" prop="deptName" />
-              <el-table-column label="手机号码" align="center" prop="mobile" width="120" />
-              <el-table-column label="邮箱" align="center" prop="email" width="160" />
+              <el-table-column label="手机号码" align="center" prop="phone" width="120" />
+              <el-table-column label="邮箱" align="center" prop="email" width="200" />
               <el-table-column label="状态" align="center" prop="status" width="80">
                 <template #default="scope">
                   <el-tag :type="scope.row.status == 1 ? 'success' : 'info'">
@@ -310,26 +275,31 @@ onMounted(() => {
                   </el-tag>
                 </template>
               </el-table-column>
-              <el-table-column label="创建时间" align="center" prop="createTime" width="150" />
+              <el-table-column label="创建时间" align="center" width="150">
+                <template #default="scope">
+                  {{ formatDate(scope.row.createdAt) }}
+                </template>
+              </el-table-column>
+              <el-table-column label="地址" align="center" prop="address" width="150" />
+              <el-table-column label="学校" align="center" prop="school" width="100" />
               <el-table-column label="操作" fixed="right" width="220">
                 <template #default="scope">
-                  <el-button v-hasPerm="'sys:user:password:reset'" type="primary" :icon="RefreshLeft" size="small" link
+                  <el-button type="primary" :icon="RefreshLeft" size="small" link
                     @click="hancleResetPassword(scope.row)">
                     重置密码
                   </el-button>
-                  <el-button v-hasPerm="'sys:user:edit'" type="primary" :icon="Edit" link size="small"
+                  <el-button type="primary" :icon="Edit" link size="small"
                     @click="handleOpenDialog(scope.row.id)">
                     编辑
                   </el-button>
-                  <el-button v-hasPerm="'sys:user:delete'" type="danger" :icon="Delete" link size="small"
+                  <el-button type="danger" :icon="Delete" link size="small"
                     @click="handleDelete(scope.row.id)">
                     删除
                   </el-button>
                 </template>
               </el-table-column>
             </el-table>
-
-            <pagination v-if="total > 0" v-model:total="total" v-model:page="queryParams.pageNum"
+            <pagination v-if="total > 0" v-model:total="total" v-model:page="queryParams.currentPage"
               v-model:limit="queryParams.pageSize" @pagination="handleQuery" />
           </el-card>
         </el-col>
@@ -342,31 +312,28 @@ onMounted(() => {
           <el-input v-model="formData.username" :readonly="!!formData.id" placeholder="请输入用户名" />
         </el-form-item>
 
-        <el-form-item label="用户昵称" prop="nickname">
-          <el-input v-model="formData.nickname" placeholder="请输入用户昵称" />
-        </el-form-item>
-
-        <el-form-item label="所属部门" prop="deptId">
-          <el-tree-select v-model="formData.deptId" placeholder="请选择所属部门" :data="deptOptions" filterable check-strictly
-            :render-after-expand="false" />
-        </el-form-item>
 
         <el-form-item label="性别" prop="gender">
-          <Dict v-model="formData.gender" code="gender" />
+          <el-radio-group v-model="formData.gender">
+            <el-radio :value="1" label="男">男</el-radio>
+            <el-radio :value="0" label="女">女</el-radio>
+          </el-radio-group>
         </el-form-item>
 
-        <el-form-item label="角色" prop="roleIds">
-          <el-select v-model="formData.roleIds" multiple placeholder="请选择">
-            <el-option v-for="item in roleOptions" :key="item.value" :label="item.label" :value="item.value" />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="手机号码" prop="mobile">
-          <el-input v-model="formData.mobile" placeholder="请输入手机号码" maxlength="11" />
+        <el-form-item label="手机号码" prop="phone">
+          <el-input v-model="formData.phone" placeholder="请输入手机号码" maxlength="11" />
         </el-form-item>
 
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="formData.email" placeholder="请输入邮箱" maxlength="50" />
+        </el-form-item>
+
+        <el-form-item label="地址" prop="address">
+          <el-input v-model="formData.address" placeholder="请输入地址" maxlength="100" />
+        </el-form-item>
+
+        <el-form-item label="学校" prop="school">
+          <el-input v-model="formData.school" placeholder="请输入学校" maxlength="50" />
         </el-form-item>
 
         <el-form-item label="状态" prop="status">
