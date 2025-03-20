@@ -98,7 +98,7 @@ watch(isRegister, () => {
 
 <template>
   <el-row class="login-page">
-    <el-col :span="12" class="bg"></el-col>
+    <el-col :span="9" class="bg"></el-col>
     <el-col :span="6" :offset="3" class="form">
       <!-- 注册表单 -->
       <el-form :model="formModel" :rules="rules" ref="form" size="large" autocomplete="off" v-if="isRegister">
@@ -175,33 +175,71 @@ watch(isRegister, () => {
 <style scoped>
 .login-page {
   height: 100vh;
-  background-color: #fff;
+  background: linear-gradient(135deg, #5e8d83, #7aa89d);
 }
 
 .login-page .bg {
-  background-color: #5e8d83;
   border-radius: 0 20px 20px 0;
 }
 
 .login-page .form {
+  margin: 100px 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .login-page .form .title {
-  margin: 0 auto;
+  margin: 0 auto 20px;
+  color: #5e8d83;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .login-page .form .button {
   width: 100%;
   color: #fff;
-  background-color: #198754;
+  background: linear-gradient(135deg, #5e8d83, #7aa89d);
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }
 
-.login-page .form .flex {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
+.login-page .form .button:hover {
+  background: linear-gradient(135deg, #7aa89d, #5e8d83);
+}
+
+.login-page .form .el-link {
+  color: #5e8d83;
+  transition: color 0.3s ease;
+}
+
+.login-page .form .el-link:hover {
+  color: #7aa89d;
+}
+
+.login-page .form .el-input__inner {
+  border-color: #5e8d83;
+  transition: border-color 0.3s ease;
+}
+
+.login-page .form .el-input__inner:focus {
+  border-color: #7aa89d;
+}
+
+.login-page .form .el-radio__input.is-checked .el-radio__inner {
+  border-color: #5e8d83;
+  background: #5e8d83;
+}
+
+.login-page .form .el-radio__input.is-checked + .el-radio__label {
+  color: #5e8d83;
 }
 </style>

@@ -18,8 +18,8 @@ export const useStudentStore = defineStore('big-student', () => {
   const user = ref({})
   const getUser = async () => {
     const res = await studentGetInfoService()
-    const {username}=res.data.data.student
-    user.value = {username}
+    const {username,avatar}=res.data.data.student
+    user.value = {username,avatar}
   }
 
   const setUser = (obj) => {

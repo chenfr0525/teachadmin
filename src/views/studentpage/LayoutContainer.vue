@@ -5,12 +5,14 @@ import { onMounted,ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const username = ref('')
+const avatar = ref('')
 const router = useRouter()
 const studentStore=useStudentStore()
 
 onMounted(() => {
   studentStore.getUser()
   username.value = studentStore.user.username
+  avatar.value = studentStore.user.avatar
 })
 
 
@@ -50,7 +52,7 @@ const handleCommand = async (key) => {
         <el-dropdown placement="bottom-end" @command="handleCommand">
           <!-- 展示给用户，默认看到的 -->
           <span class="el-dropdown__box">
-            <el-avatar src="../assets/avatar.jpg" />
+            <el-avatar src="http://localhost:3000/uploads/emo.jpg" />
             <el-icon>
               <CaretBottom />
             </el-icon>
@@ -84,18 +86,28 @@ const handleCommand = async (key) => {
             </el-icon>
             <span>信息</span>
           </el-menu-item>
-          <el-menu-item index="/user/codeteach">
-            <el-icon>
-              <Management />
-            </el-icon>
-            <span>代码辅导</span>
-          </el-menu-item>
-          <el-menu-item index="/user/codelearn">
-            <el-icon>
-              <Management />
-            </el-icon>
-            <span>代码学习</span>
-          </el-menu-item>
+          <!-- 多级菜单的标题 -具名插槽 title-->
+          <el-sub-menu index="/user">
+            <template #title>
+              <el-icon>
+                <UserFilled />
+              </el-icon>
+              <span>智能编程教学</span>
+            </template>
+            <!-- 展开的内容 -默认插槽 -->
+            <el-menu-item index="/user/codeteach">
+              <el-icon>
+                <User />
+              </el-icon>
+              <span>代码辅导</span>
+            </el-menu-item>
+            <el-menu-item index="/user/codelearn">
+              <el-icon>
+                <Crop />
+              </el-icon>
+              <span>代码学习</span>
+            </el-menu-item>
+          </el-sub-menu>
           <!-- 多级菜单的标题 -具名插槽 title-->
           <el-sub-menu index="/user">
             <template #title>

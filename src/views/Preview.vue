@@ -31,7 +31,7 @@ const handleLogin=()=>{
         <el-row :gutter="20">
           <el-col :span="12">
             <div class="img">
-              <img src="../assets/1.jpg" alt="">
+              <img src="../assets/preimg.jpg" alt="" style="width:610px;height:430px;">
             </div>
           </el-col>
           <el-col :span="12">
@@ -51,7 +51,7 @@ const handleLogin=()=>{
               <el-collapse v-model="activeName" accordion>
                 <el-collapse-item name="1">
                   <template #title>
-                    <img src="../assets/1.jpg" alt="">
+                    <img src="../assets/pre1.jpg" alt="">
                     <h1>个性化多轮回答</h1>
                   </template>
                   <div class="colContent">知识集成</div>
@@ -60,7 +60,7 @@ const handleLogin=()=>{
                 </el-collapse-item>
                 <el-collapse-item name="2">
                   <template #title>
-                    <img src="../assets/1.jpg" alt="">
+                    <img src="../assets/pre2.jpg" alt="">
                     <h1>智能编程教学</h1>
                   </template>
                   <div class="colContent">代码辅导</div>
@@ -202,8 +202,9 @@ const handleLogin=()=>{
 }
 
 .el-main .demo-collapse .el-collapse-item img {
-  width: 45px;
-  height: 45px;
+  width: 50px;
+  height: 50px;
+  border-radius: 20px;
 }
 
 .el-main .demo-collapse .el-collapse-item .colContent {

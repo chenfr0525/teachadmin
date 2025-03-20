@@ -40,12 +40,18 @@ const getData = async () => {
   console.log(data.data.data)
   //轮播图
   carousel.value = data.data.data.carouselImage
+  carousel.value.forEach(item => {
+    item.image_url = `http://localhost:3000/${item.image_url}`
+  })
   //语句
   let sentemnces = data.data.data.quote
   let sentenNum = getRandomNum(1, sentemnces.length - 1)
   quote.value = sentemnces[sentenNum].quote
   //推荐
   remend.value = data.data.data.remend
+  remend.value.forEach(item => {
+    item.img = `http://localhost:3000/${item.img}`
+  })
   //今日学习时间
   todayTime.value = convertTimeToHours(data.data.data.studytime[0].duration)
   //每周上线时间
@@ -130,14 +136,14 @@ onMounted(() => {
       <el-col :span="4">
         <el-card shadow="hover" class="top-pad">
           <div class="info">
-            <el-avatar :size="65" src="@/assets/1.jpg" />
+            <el-avatar :size="65" src="http://localhost:3000/uploads/emo.jpg" />
             <div class="info-title">
               <h1>你好！{{ studentName }}</h1>
               <p>{{ quote }}</p>
             </div>
           </div>
         </el-card>
-        <el-card shadow="hover" style="margin-top: 10px;" class="doTime top-pad">
+        <el-card shadow="hover" style="margin-top: 90px;" class="doTime top-pad">
           <h3 class="doTime-title">今日学习时长</h3>
           <div class="doTime-progress">
             <el-progress type="dashboard" :percentage="(todayTime / 12) * 100">
@@ -151,9 +157,9 @@ onMounted(() => {
       <el-col :span="20">
         <el-card shadow="hover" class="banner-pad">
           <div class="banner">
-            <el-carousel height="400px">
+            <el-carousel height="480px">
               <el-carousel-item v-for="item in carousel" :key="item">
-                <img :src="item.image_url" alt="">
+                <img :src="item.image_url" alt="" style="width: 100%;object-fit: cover;" />
               </el-carousel-item>
             </el-carousel>
           </div>
@@ -169,7 +175,7 @@ onMounted(() => {
               <el-link :underline="false" :href="`/user/${item.type}`">
                 <el-card shadow="hover" class="recom-body">
                   <div class="recommand">
-                    <img src="../../assets/recommand1.jpg" alt="">
+                    <img :src="item.img" alt="">
                     <span>{{ item.name }}</span>
                   </div>
                 </el-card>

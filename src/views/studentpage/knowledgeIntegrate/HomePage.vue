@@ -15,8 +15,14 @@ const selectCourses = ref([])
 const getCourseData = async() => {
   const res1=await getRecommendorClassic({recommend:1})
   recomCourses.value=res1.data.data.courses
+  recomCourses.value.forEach(item => {
+    item.image_url = 'http://localhost:3000'+item.image_url
+  })
   const res2=await getRecommendorClassic({classic:1})
   selectCourses.value=res2.data.data.courses
+  selectCourses.value.forEach(item => {
+    item.image_url = 'http://localhost:3000'+item.image_url
+  })
 };
 
 onMounted(() => {
@@ -75,7 +81,7 @@ onMounted(() => {
             <el-card shadow="hover">
               <el-row>
                 <el-col :span="8">
-                  <img src="../../../assets/1.jpg" alt="">
+                  <img src="../../../assets/111.jpg" alt="">
                 </el-col>
                 <el-col :span="16">
                   <div class="img-text">
@@ -92,7 +98,7 @@ onMounted(() => {
             <el-card shadow="hover">
               <el-row>
                 <el-col :span="8">
-                  <img src="../../../assets/1.jpg" alt="">
+                  <img src="../../../assets/222.jpg" alt="">
                 </el-col>
                 <el-col :span="16">
                   <div class="img-text">
@@ -109,7 +115,7 @@ onMounted(() => {
             <el-card shadow="hover">
               <el-row>
                 <el-col :span="8">
-                  <img src="../../../assets/1.jpg" alt="">
+                  <img src="../../../assets/333.jpg" alt="">
                 </el-col>
                 <el-col :span="16">
                   <div class="img-text">
@@ -126,7 +132,7 @@ onMounted(() => {
             <el-card shadow="hover">
               <el-row>
                 <el-col :span="8">
-                  <img src="../../../assets/1.jpg" alt="">
+                  <img src="../../../assets/444.jpg" alt="">
                 </el-col>
                 <el-col :span="16">
                   <div class="img-text">
@@ -147,7 +153,7 @@ onMounted(() => {
 .showImg {
   width: 100%;
   height: 250px;
-  background-color: #99cc99;
+  background-color: #5e8d83;
 
   .el-card__body {
     width: 100%;

@@ -10,6 +10,9 @@ const courses = ref([]);
 const getCourseList=async()=>{
   const res=await getRecommendorClassic()
   courses.value=res.data.data.courses
+  courses.value.forEach(item => {
+    item.image_url = 'http://localhost:3000'+item.image_url
+  })
 }
 
 onMounted(()=>{

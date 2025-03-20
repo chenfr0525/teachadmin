@@ -85,7 +85,7 @@ const handleCancel = () => {
         <div class="update-avatar">
           <el-upload ref="uploadRef" :on-change="onSelectFile" :auto-upload="false" class="avatar-uploader"
             :show-file-list="false">
-            <img v-if="imgUrl" :src="imgUrl" class="avatar" />
+            <img v-if="imgUrl" src="http://localhost:3000/uploads/emo.jpg" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon">
               <Plus />
             </el-icon>

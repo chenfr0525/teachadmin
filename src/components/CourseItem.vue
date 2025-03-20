@@ -22,6 +22,7 @@ const course = ref({
 const getCourseContent=async()=>{
   const res=await getCourseDetail(props.courseId)
   course.value=res.data.data.course
+  course.value.image_url='http://localhost:3000/'+course.value.image_url
 }
 
 onMounted(()=>{
