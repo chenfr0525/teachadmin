@@ -11,6 +11,7 @@ import * as echarts from 'echarts';
 const studentStore = useStudentStore()
 //学生名字
 const studentName = ref('')
+const studentAvatar = ref('')
 //轮播图
 const carousel = ref([])
 //激励语句
@@ -127,6 +128,7 @@ function createEchat() {
 onMounted(() => {
   getData()
   studentName.value = studentStore.user.username
+  studentAvatar.value = 'http://localhost:3000/'+studentStore.user.avatar
 })
 </script>
 
@@ -136,7 +138,7 @@ onMounted(() => {
       <el-col :span="4">
         <el-card shadow="hover" class="top-pad">
           <div class="info">
-            <el-avatar :size="65" src="http://localhost:3000/uploads/emo.jpg" />
+            <el-avatar :size="65" :src="studentAvatar" />
             <div class="info-title">
               <h1>你好！{{ studentName }}</h1>
               <p>{{ quote }}</p>

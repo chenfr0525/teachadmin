@@ -2,9 +2,12 @@
 import {useStudentStore} from '@/stores'
 import { ref, onMounted} from 'vue';
 import { Plus, Upload } from '@element-plus/icons-vue'
-import { studentGetInfoService,studentUpdateInfoService } from '@/api/student'
+import { studentGetInfoService,studentUpdateInfoService,studentUploadAvatarService } from '@/api/student'
 
 const studentStore=useStudentStore()
+//图片Ref
+const uploadRef = ref()
+const imgUrl = ref()
 
 const formModel=ref({})
 
@@ -33,7 +36,10 @@ const introduce = ref('')
 //获取学生信息
 const getStudentData=async()=>{
   const res = await studentGetInfoService()
+  studentStore.getUser()
   student.value=res.data.data.student
+  console.log(student.value)
+  student.value.avatar='http://localhost:3000/'+student.value.avatar
   form.value={...student.value}
   introduce.value=student.value.bio
 }
@@ -42,12 +48,35 @@ onMounted(() => {
   getStudentData()
 })
 
+const fileRaw = ref(null) // 新增一个ref来保存原始文件
+const onSelectFile = (file) => {
+  fileRaw.value = file.raw // 保存原始文件对象
+  //基于 FileReader 读取图片做预览
+  const reader = new FileReader();
+  reader.readAsDataURL(file.raw);
+  reader.onload = () => {
+    imgUrl.value = reader.result;
+  };
+};
 
 
 // 上传头像成功
-const handleAvatarSuccess = (response, file) => {
-  student.value.avatar = URL.createObjectURL(file.raw);
-  ElMessage.success('头像上传成功');
+const handleAvatarSuccess = async() => {
+  if(!fileRaw.value) {
+    ElMessage.error('请先选择图片');
+    return;
+  }
+  const formData = new FormData();
+  formData.append('file', fileRaw.value); // 字段名必须为 'file'（和后端一致)
+
+   try {
+    await studentUploadAvatarService(formData)
+    await getStudentData()
+    ElMessage.success('头像上传成功');
+    fileRaw.value = null // 上传成功后清空
+  } catch (error) {
+    ElMessage.error('上传失败')
+  }
 };
 
 //修改简介
@@ -85,14 +114,15 @@ const handleCancel = () => {
         <div class="update-avatar">
           <el-upload ref="uploadRef" :on-change="onSelectFile" :auto-upload="false" class="avatar-uploader"
             :show-file-list="false">
-            <img v-if="imgUrl" src="http://localhost:3000/uploads/emo.jpg" class="avatar" />
+            <img v-if="imgUrl" :src="imgUrl" class="avatar" />
+            <img v-else-if="form.avatar" :src="form.avatar" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon">
               <Plus />
             </el-icon>
           </el-upload>
           <el-button @click="uploadRef.$el.querySelector('input').click()" type="primary" :icon="Plus"
             size>选择图片</el-button>
-          <el-button @click="onUpdateAvatar" type="success" :icon="Upload" size>上传头像</el-button>
+          <el-button @click="handleAvatarSuccess" type="success" :icon="Upload" size>上传头像</el-button>
         </div>
         <!-- 个人介绍 -->
         <div class="intru">
@@ -169,8 +199,8 @@ const handleCancel = () => {
         .avatar-uploader {
           :deep() {
             .avatar {
-              width: 180px;
-              height: 180px;
+              width: 220px;
+              height: 220px;
               display: block;
             }
 

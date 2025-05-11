@@ -3,17 +3,10 @@ import {useAdminStore} from '@/stores'
 import { Management, CaretBottom, User,Crop,EditPen,SwitchButton,UserFilled } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import {ref,onMounted} from 'vue'
 
-const username=ref('')
 const router=useRouter()
 const adminStore=useAdminStore()
-
-onMounted(() => {
-  adminStore.getUser()
-  username.value=adminStore.user
-})
-
+adminStore.getUser()
 // 下拉菜单
 const handleCommand = async (key) =>{
   if(key === 'logout'){
@@ -45,12 +38,12 @@ const handleCommand = async (key) =>{
       </el-space>
 
       <el-space :size="25">
-        <div class="username">管理员：<strong>{{ username }}</strong></div>
+        <div class="username">管理员：<strong>{{ adminStore.user.username }}</strong></div>
         <!-- 下拉菜单 -->
         <el-dropdown placement="bottom-end" @command="handleCommand">
           <!-- 展示给用户，默认看到的 -->
           <span class="el-dropdown__box">
-            <el-avatar src="../assets/avatar.jpg" />
+            <el-avatar :src="adminStore.user.avatar" />
             <el-icon>
               <CaretBottom />
             </el-icon>

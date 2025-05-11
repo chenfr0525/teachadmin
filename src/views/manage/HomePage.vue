@@ -9,12 +9,14 @@ import * as echarts from 'echarts';
 
 const adminStore = useAdminStore();
 
+const avatar=ref('')
+
 // 当前时间（用于计算问候语）
 const currentDate = new Date();
 // 问候语：根据当前小时返回不同问候语
 const greetings = computed(() => {
   const hours = currentDate.getHours();
-  const nickname = adminStore.user
+  const nickname = adminStore.user.username
   if (hours >= 6 && hours < 8) {
     return "晨起披衣出草堂，轩窗已自喜微凉🌅！";
   } else if (hours >= 8 && hours < 12) {
@@ -54,6 +56,7 @@ const infomations=ref([])
 const weekdata=ref([])
 //获取数据
 const getData = async () => {
+  avatar.value='http://localhost:3000/'+adminStore.user.avatar
   const res = await adminHomeGetService()
   studentCount.value = {
     total: res.data.data.studentTotal,
@@ -106,7 +109,7 @@ onMounted(() => {
     <el-card shadow="always">
       <el-row>
         <el-col :span="18" :xs="24" class="userinfo">
-          <img style="width: 80px;height: 80px;border-radius: 50%;" src="../../assets/1.jpg" />
+          <img style="width: 80px;height: 80px;border-radius: 50%;" :src="avatar" />
           <div class="info-content">
             <p style="font-size: 20px;font-weight: 700;">{{ greetings }}</p>
             <p class="weather-text">欢迎登录！今天的每一步都在努力为未来创造价值，加油！</p>

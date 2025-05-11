@@ -6,6 +6,7 @@ import { ref } from 'vue'
 //用户模块token setToken removeToken
 export const useStudentStore = defineStore('big-student', () => {
   const role=ref(0)
+  const isLoaded=ref(false)
   //token
   const token = ref('')
   const setToken = (newToken) => {
@@ -20,6 +21,7 @@ export const useStudentStore = defineStore('big-student', () => {
     const res = await studentGetInfoService()
     const {username,avatar}=res.data.data.student
     user.value = {username,avatar}
+    isLoaded.value=true
   }
 
   const setUser = (obj) => {
@@ -42,6 +44,7 @@ export const useStudentStore = defineStore('big-student', () => {
   return {
     role,
     token,
+    isLoaded,
     setToken,
     removeToken,
     user,

@@ -24,3 +24,6 @@ export const adminUpdateInfoService=(id,data)=>request.put(`/admin/${id}`,data)
 
 //删除管理员
 export const adminDeleteService=(id)=>request.delete(`/admin/${id}`)
+
+//上传头像
+export const adminUploadAvatarService=(data)=>request.post(`/admin/image`,data)

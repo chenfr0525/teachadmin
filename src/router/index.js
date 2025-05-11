@@ -1,5 +1,7 @@
+import { useAdminStore, useStudentStore } from '@/stores'
 import { createRouter, createWebHistory } from 'vue-router'
-
+const StudentLayout=import('@/views/studentpage/LayoutContainer.vue')
+const ManageLayout=import('@/views/manage/LayoutContainer.vue')
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -13,8 +15,9 @@ const router = createRouter({
     },
     {
       path: '/',
-      component: () => import('@/views/studentpage/LayoutContainer.vue'),
+      component: StudentLayout,
       redirect: '/user/home',
+      meta: { requiresAuth: true,role:'student' }, // 需要用户信息
       children: [
         {
           path: '/user/home',
@@ -87,8 +90,9 @@ const router = createRouter({
     },
     {
       path: '/admin',
-      component: () => import('@/views/manage/LayoutContainer.vue'),
+      component: ManageLayout,
       redirect: '/admin/home',
+      meta: { requiresAuth: true,role:'admin' }, // 需要用户信息
       children: [
         {
           path: '/admin/home',
@@ -117,6 +121,45 @@ const router = createRouter({
       ]
     }
   ],
+})
+
+router.beforeEach(async (to, from, next) => {
+  // 不需要登录的页面（如登录页、404）
+  if (!to.meta.requiresAuth) {
+    return next()
+  }
+  if(to.meta.role === 'student'){
+    const studentStore = useStudentStore()
+    // 如果没有token，跳转到登录页
+    if (!studentStore.token) {
+      return next('/login')
+    }
+    if(!studentStore.isLoaded) {
+      try {
+        await studentStore.getUser()
+        next() // 获取成功，进入页面
+      } catch (error) {
+        // 获取失败，跳转到登录页
+        next('/login')
+      }
+  }
+  }else{
+    const adminStore = useAdminStore()
+    // 如果没有token，跳转到登录页
+    if (!adminStore.token) {
+      return next('/login')
+    }
+    if(!adminStore.isLoaded) {
+      try {
+        await adminStore.getUser()
+        next() // 获取成功，进入页面
+      } catch (error) {
+        // 获取失败，跳转到登录页
+        next('/login')
+      }
+  }
+  }
+  next() // 进入页面
 })
 
 export default router

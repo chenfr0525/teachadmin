@@ -119,10 +119,8 @@ import {getAlgorithmService} from '@/api/codelearn'
 import { updatePlanService } from '@/api/plan'
 import { getRecommendorClassic } from '@/api/course'
 import { useStudentStore } from '@/stores'
-import { ref, onMounted, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { ref, onMounted, computed,watch } from 'vue';
 import CourseItem from '@/components/CourseItem.vue';
-const router = useRouter()
 const studentStore = useStudentStore()
 
 //form里的plan计划
@@ -130,6 +128,12 @@ const formPlan = ref({
   goal: '',
   interests: [],
   level: '',
+})
+
+watch(()=>formPlan.value.interests, (newVal) => {
+  if(typeof newVal === 'string'){
+    formPlan.value.interests = newVal.split(',')
+  }
 })
 
 // 用户画像数据
@@ -154,13 +158,9 @@ const rules = {
 
 const getPlanContent = () => {
   plan.value = studentStore.plan
-  let planList = studentStore.plan
-  planList.interests = typeof planList.interests === 'string'
-    ? planList.interests.split(',') // 如果是字符串，用逗号分割成数组
-    : Array.isArray(planList.interests)
-      ? planList.interests // 如果已经是数组，直接使用
-      : []; // 如果不是字符串也不是数组，返回空数组
-  formPlan.value = planList
+  formPlan.value.goal = plan.value.goal
+  formPlan.value.level = plan.value.level
+  formPlan.value.interests =typeof plan.value.interests ==='string'?plan.value.interests.split(',') : plan.value.interests
 }
 
 // 推荐内容数据
@@ -187,7 +187,6 @@ const getCourseContent = async () => {
   let type = typeRef.value
   const res = await getRecommendorClassic({ type })
   courses.value = res.data.data.courses
-  console.log(courses.value)
 }
 
 // 对话框是否可见
@@ -201,18 +200,14 @@ const showProfileDialog = () => {
 // 保存用户学习计划
 const saveProfile = async () => {
   await form.value.validate()
-  const planList = formPlan.value
+  let planList = formPlan.value
   planList.interests = planList.interests.join(',')
   await updatePlanService(planList)
   studentStore.setPlan(planList)
-  formPlan.value = {
-    goal: plan.value.goal,
-    interests: [],
-    level: plan.value.level,
-  }
   ElMessage.success('更新学习计划成功')
   planDialogVisible.value = false
   getCourseContent()
+  getPlanContent()
 }
 
 // 当前选中的算法标签页

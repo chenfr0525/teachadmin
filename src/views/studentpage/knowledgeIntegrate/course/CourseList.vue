@@ -126,6 +126,7 @@ const handlePageChange = (page) => {
     padding: 20px;
 
     .course-card {
+      height: 95%;
       margin-bottom: 20px;
       transition: transform 0.3s;
 

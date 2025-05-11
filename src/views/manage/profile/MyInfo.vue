@@ -9,7 +9,6 @@ const admin=ref({})
 const getAdminData=async()=>{
   const res=await adminGetInfoService()
   admin.value=res.data.data.admin
-  console.log(admin.value)
 }
 
 onMounted(()=>{
@@ -24,7 +23,7 @@ onMounted(()=>{
       <el-aside width="300px">
         <el-card shadow="never">
           <div class="info-one">
-            <el-avatar :size="200" src="../../../assets/1.jpg" />
+            <el-avatar :size="200" :src="'http://localhost:3000/'+admin.avatar" />
             <div class="intru">
               <h1>个人职责</h1>
               <p>{{admin.bio||'这人还没有职责！'}}</p>

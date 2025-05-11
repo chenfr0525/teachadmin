@@ -4,7 +4,7 @@
     <el-aside class="aside">
       <div class="aside-content">
         <!-- 头像 -->
-        <el-avatar :size="180" src="http://localhost:3000/uploads/emo.jpg" class="avatar" />
+        <el-avatar :size="180" :src="'http://localhost:3000/'+student.avatar" class="avatar" />
         <!-- 个人介绍 -->
         <div class="student-bio">
           <h1>个人简介</h1>

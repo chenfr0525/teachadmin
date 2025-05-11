@@ -13,7 +13,7 @@
       </el-breadcrumb>
     </el-header>
     <!-- 路由视图 -->
-    <el-card shadow="never">
+    <el-card shadow="never" class="codecard">
       <router-view />
     </el-card>
   </div>
@@ -44,6 +44,10 @@
         }
       }
     }
+  }
+
+  .codecard {
+    overflow-y: auto;
   }
 }
 </style>

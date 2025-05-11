@@ -15,3 +15,6 @@ export const studentGetInfoService = () => request.get('/user/students/me')
 
 //修改学生信息
 export const studentUpdateInfoService=(id,data)=>request.put(`/user/students/${id}`,data)
+
+//上传头像
+export const studentUploadAvatarService=(data)=>request.post(`/user/students/image`,data)

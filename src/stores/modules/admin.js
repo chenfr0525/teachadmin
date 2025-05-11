@@ -1,35 +1,39 @@
-import {adminGetInfoService} from '@/api/admin'
-import {defineStore} from 'pinia'
-import {ref} from 'vue'
+import { adminGetInfoService } from '@/api/admin'
+import { defineStore } from 'pinia'
+import { ref ,watch} from 'vue'
 
 //用户模块token setToken removeToken
-export const useAdminStore = defineStore('big-admin',()=>{
-  const role=ref(1)
+export const useAdminStore = defineStore('big-admin', () => {
+  const role = ref(1)
   const token = ref('')
-  const setToken = (newToken)=>{
+  const isLoaded = ref(false)
+  const setToken = (newToken) => {
     token.value = newToken
   }
-  const removeToken = ()=>{
-    token.value=''
+  const removeToken = () => {
+    token.value = ''
   }
   const user = ref({})
-  const getUser = async()=>{
+  const getUser = async () => {
     const res = await adminGetInfoService()
-    user.value=res.data.data.admin.username
+    let { username, avatar } = res.data.data.admin
+    user.value = { username, avatar }
+    isLoaded.value = true
   }
 
-  const setUser =(obj)=>{
-    user.value=obj
+  const setUser = (obj) => {
+    user.value = obj
   }
   return {
     role,
     token,
+    isLoaded,
     setToken,
     removeToken,
     user,
     getUser,
     setUser
   }
-},{
-  persist:true
+}, {
+  persist: true
 })

@@ -1,9 +1,13 @@
 <script setup>
 import {useAdminStore} from '@/stores'
-import {adminGetInfoService,adminUpdateInfoService} from '@/api/admin.js'
+import {adminGetInfoService,adminUpdateInfoService, adminUploadAvatarService} from '@/api/admin.js'
 import { ref,onMounted } from 'vue'
 import { Plus,Iphone, Location,User,Upload } from '@element-plus/icons-vue'
 const adminStore=useAdminStore()
+//图片Ref
+const uploadRef = ref()
+const imgUrl = ref()
+
 const formModel=ref({})
 const rules = {
   username: [
@@ -54,6 +58,36 @@ const handleCancel = () => {
   ElMessage.info('已取消修改');
 };
 
+const fileRaw = ref(null) // 新增一个ref来保存原始文件
+const onSelectFile = (file) => {
+  fileRaw.value = file.raw // 保存原始文件对象
+  //基于 FileReader 读取图片做预览
+  const reader = new FileReader();
+  reader.readAsDataURL(file.raw);
+  reader.onload = () => {
+    imgUrl.value = reader.result;
+  };
+};
+
+// 上传头像成功
+const handleAvatarSuccess = async() => {
+  if(!fileRaw.value) {
+    ElMessage.error('请先选择图片');
+    return;
+  }
+  const formData = new FormData();
+  formData.append('file', fileRaw.value); // 字段名必须为 'file'（和后端一致)
+
+   try {
+    await adminUploadAvatarService(formData)
+    await getAdminData()
+    ElMessage.success('头像上传成功');
+    fileRaw.value = null // 上传成功后清空
+  } catch (error) {
+    ElMessage.error('上传失败')
+  }
+};
+
 onMounted(() => {
   getAdminData()
 })
@@ -75,7 +109,7 @@ onMounted(() => {
               </el-upload>
               <el-button @click="uploadRef.$el.querySelector('input').click()" type="primary" :icon="Plus"
                 size>选择图片</el-button>
-              <el-button @click="onUpdateAvatar" type="success" :icon="Upload" size>上传头像</el-button>
+              <el-button @click="handleAvatarSuccess" type="success" :icon="Upload" size>上传头像</el-button>
             </div>
             <div class="intru">
               <h1>个人职责</h1>

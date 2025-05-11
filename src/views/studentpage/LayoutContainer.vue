@@ -1,19 +1,13 @@
 <script setup>
-import {useStudentStore} from '@/stores'
+import { useStudentStore } from '@/stores'
 import { Management, CaretBottom, User, Crop, EditPen, SwitchButton, UserFilled } from '@element-plus/icons-vue'
-import { onMounted,ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const username = ref('')
-const avatar = ref('')
 const router = useRouter()
-const studentStore=useStudentStore()
+const studentStore = useStudentStore()
+studentStore.getUser()
 
-onMounted(() => {
-  studentStore.getUser()
-  username.value = studentStore.user.username
-  avatar.value = studentStore.user.avatar
-})
 
 
 // 下拉菜单
@@ -47,12 +41,12 @@ const handleCommand = async (key) => {
       </el-space>
 
       <el-space :size="25">
-        <div class="username">学生：<strong>{{username}}</strong></div>
+        <div class="username">学生：<strong>{{ studentStore.user.username }}</strong></div>
         <!-- 下拉菜单 -->
         <el-dropdown placement="bottom-end" @command="handleCommand">
           <!-- 展示给用户，默认看到的 -->
           <span class="el-dropdown__box">
-            <el-avatar src="http://localhost:3000/uploads/emo.jpg" />
+            <el-avatar :src="studentStore.user.avatar" />
             <el-icon>
               <CaretBottom />
             </el-icon>
