@@ -30,7 +30,7 @@
 
 ###### 首页
 
-![./images/首页1.png](\public\images\首页1.png)
+![./images/首页1.png](/public/images/首页1.png)
 ![./images/首页2.png](\public\images\首页2.png)
 
 ###### 信息页
