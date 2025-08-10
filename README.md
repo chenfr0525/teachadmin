@@ -30,67 +30,67 @@
 
 ###### 首页
 
-![./images/首页1.png](.\images\首页1.png)
-![./images/首页2.png](.\images\首页2.png)
+![./images/首页1.png](\public\images\首页1.png)
+![./images/首页2.png](\public\images\首页2.png)
 
 ###### 信息页
 
-![./images/信息.png](.\images\信息.png)
+![./images/信息.png](\public\images\信息.png)
 
 ###### 代码辅导页
 
-![./images/代码辅导页.png](.\images\代码辅导页.png)
+![./images/代码辅导页.png](\public\images\代码辅导页.png)
 
 ###### 代码学习页
 
-![./images/代码学习1.png](.\images\代码学习1.png)
-![./images/代码学习2.png](.\images\代码学习2.png)
-![./images/代码学习3.png](.\images\代码学习3.png)
+![./images/代码学习1.png](\public\images\代码学习1.png)
+![./images/代码学习2.png](\public\images\代码学习2.png)
+![./images/代码学习3.png](\public\images\代码学习3.png)
 
 ###### 知识集成页
 
-![./images/知识集成页.png](.\images\知识集成页.png)
+![./images/知识集成页.png](\public\images\知识集成页.png)
 
 ###### 智能回答页
 
-![./images/智能回答.png](.\images\智能回答.png)
+![./images/智能回答.png](\public\images\智能回答.png)
 
 ###### 个性化学习
 
-![./images/个性化学习1.png](.\images\个性化学习1.png)
-![./images/个性化学习2.png](.\images\个性化学习2.png)
+![./images/个性化学习1.png](\public\images\个性化学习1.png)
+![./images/个性化学习2.png](\public\images\个性化学习2.png)
 
 ###### 个人信息页
 
-![./images/个人资料.png](.\images\个人资料.png)
-![./images/修改个人资料.png](.\images\修改个人资料.png)
+![./images/个人资料.png](\public\images\个人资料.png)
+![./images/修改个人资料.png](\public\images\修改个人资料.png)
 
 #### 管理员端
 
 ###### 首页
 
-![./images/首页.png](.\images\首页.png)
+![./images/首页.png](\public\images\首页.png)
 
 ###### 学生管理
 
-![./images/学生管理.png](.\images\学生管理.png)
+![./images/学生管理.png](\public\images\学生管理.png)
 
 ###### 通知管理
 
-![./images/通知管理.png](.\images\通知管理.png)
+![./images/通知管理.png](\public\images\通知管理.png)
 
 ###### 编辑信息
 
-![./images/编辑信息.png](.\images\编辑信息.png)
+![./images/编辑信息.png](\public\images\编辑信息.png)
 
 #### 预览
 
 ###### 首页
 
-![./images/预览1.png](.\images\预览1.png)
-![./images/预览2.png](.\images\预览2.png)
+![./images/预览1.png](\public\images\预览1.png)
+![./images/预览2.png](\public\images\预览2.png)
 
 ###### 登录注册
 
-![./images/登录.png](.\images\登录.png)
-![./images/注册.png](.\images\注册.png)
+![./images/登录.png](\public\images\登录.png)
+![./images/注册.png](\public\images\注册.png)
